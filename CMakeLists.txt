@@ -13,4 +13,21 @@ include_directories(include)
 
 # Add the required sub-directories
 add_subdirectory(src)
-#add_subdirectory(test)
+
+# Set testing option
+option(BUILD_TESTS "Build tests" OFF)
+
+# Only build tests if instructed to do so
+if (BUILD_TESTS) 
+    # Find packages
+    find_package(GTest CONFIG REQUIRED)
+
+    # add testing subdirectory
+    add_subdirectory(test)
+
+    # Enable testing
+    enable_testing()
+
+    # add test to enable use of make test
+    add_test(${PROJECT_NAME}_test ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_test)
+endif()
