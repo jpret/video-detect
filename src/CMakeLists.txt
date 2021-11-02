@@ -3,16 +3,16 @@ cmake_minimum_required(VERSION 3.12.0)
 
 # Find FMPEG libraries
 find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
-find_library(AVCODEC_LIBRARY avcodec)
+find_library(AVCODEC_LIBRARY avcodec REQUIRED)
 
 find_path(AVFORMAT_INCLUDE_DIR libavformat/avformat.h)
-find_library(AVFORMAT_LIBRARY avformat)
+find_library(AVFORMAT_LIBRARY avformat REQUIRED)
 
-find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
-find_library(AVUTIL_LIBRARY avutil)
+find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
+find_library(SWSCALE_LIBRARY swscale REQUIRED)
 
-find_path(AVDEVICE_INCLUDE_DIR libavdevice/avdevice.h)
-find_library(AVDEVICE_LIBRARY avdevice)
+# Find OpenCV package
+find_package( OpenCV REQUIRED )
 
 # List sources
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "*.cc")
@@ -25,16 +25,17 @@ target_include_directories(${PROJECT_NAME}
                             PRIVATE 
                             ${AVCODEC_INCLUDE_DIR} 
                             ${AVFORMAT_INCLUDE_DIR} 
-                            ${AVUTIL_INCLUDE_DIR} 
-                            ${AVDEVICE_INCLUDE_DIR})
+                            ${SWSCALE_INCLUDE_DIR}
+                            ${OpenCV_INCLUDE_DIRS})
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} 
                         PRIVATE 
                         ${AVCODEC_LIBRARY} 
                         ${AVFORMAT_LIBRARY} 
-                        ${AVUTIL_LIBRARY} 
-                        ${AVDEVICE_LIBRARY})
+                        -lavutil
+                        ${SWSCALE_LIBRARY}
+                        ${OpenCV_LIBS})
 
 # Set output directories
 set_target_properties( ${PROJECT_NAME}
