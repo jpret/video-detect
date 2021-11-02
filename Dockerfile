@@ -2,9 +2,9 @@ FROM gcc:latest
 
 # Install dependencies
 RUN apt update
-RUN apt -y install zip
-RUN apt -y install nasm
 RUN apt -y install cmake
+RUN apt -y install nasm
+RUN apt -y install zip
 
 # Install vcpkg
 RUN git clone https://github.com/Microsoft/vcpkg.git
