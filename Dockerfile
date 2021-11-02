@@ -7,11 +7,8 @@ RUN apt -y install nasm
 RUN apt -y install cmake
 
 # Install vcpkg
-WORKDIR /usr
 RUN git clone https://github.com/Microsoft/vcpkg.git
-RUN /usr/vcpkg/vcpkg/bootstrap-vcpkg.sh
-RUN /usr/vcpkg/vcpkg integrate install
-RUN ln -s /usr/vcpkg/vcpkg /usr/bin/vcpkg
+RUN ./vcpkg/bootstrap-vcpkg.sh
 
 # Clone repository
 WORKDIR /cppeng
@@ -22,6 +19,7 @@ WORKDIR /cppeng/video-detect
 RUN git checkout origin/development/main
 
 # Build project and run tests
+RUN chmod +x /cppeng/video-detect/bootstrap.sh
 RUN /cppeng/video-detect/bootstrap.sh
 
 # Run
