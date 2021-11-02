@@ -1,8 +1,5 @@
 #!/usr/bin/env bash 
 
-# Install dependencies
-vcpkg install gtest
-
 # Setup cmake to use vcpkg dependency manager
 cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/usr/vcpkg/scripts/buildsystems/vcpkg.cmake
 
@@ -10,4 +7,6 @@ cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/usr/vcpkg/scripts/buildsystems/vcpkg
 cd build
 cmake -DBUILD_TESTS=ON ..
 make
+
+# Run tests
 make test

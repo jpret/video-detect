@@ -3,6 +3,8 @@ FROM gcc:latest
 # Install dependencies
 RUN apt update
 RUN apt -y install cmake
+RUN apt -y install zip
+RUN apt -y install nasm
 
 # Install vcpkg
 WORKDIR /usr
@@ -15,4 +17,7 @@ WORKDIR /cppeng
 RUN git clone https://github.com/cppengineer/video-detect.git
 
 # Build project and run tests
-CMD /cppeng/video-detect/bootstrap-tests.sh
+RUN /cppeng/video-detect/bootstrap.sh
+
+# Run
+RUN /cppeng/video-detect/build/bin/video-detect
