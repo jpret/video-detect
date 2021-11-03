@@ -22,6 +22,8 @@ WORKDIR /cppeng
 RUN git clone https://github.com/cppengineer/video-detect.git
 
 # TEMPORARY
+RUN apt -y install clang-format
+RUN apt -y install gdb
 WORKDIR /cppeng/video-detect
 RUN git checkout origin/development/main
 

@@ -7,7 +7,6 @@ project(video-detect VERSION 1.0)
 # Specify the c++ standard version
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_FLAGS "-D__STDC_CONSTANT_MACROS")
 
 # Add the include directories
 include_directories(include)
