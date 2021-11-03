@@ -19,12 +19,13 @@ extern "C" {
 #include <opencv2/highgui.hpp>
 
 #include "video-detect/ff2cv.h"
-#include "video-detect/frame_analyzer.h"
 
 namespace cppeng {
 namespace video_detect {
 
-int ff2cv(int argc, const char *argv[]) {
+int ff2cv(int argc, const char *argv[],
+          util::ObjectReceiver<cv::Mat> &receiver) {
+
   if (argc < 2) {
     std::cout << "Usage: ff2cv <infile>" << std::endl;
     return 1;
@@ -143,9 +144,8 @@ int ff2cv(int argc, const char *argv[]) {
       //////////////////////////////////////////////////////////////////
       // START - custom code from here
       if (nb_frames % 100 == 0) {
-        std::string img_name(infile);
-        img_name.append("_frame_" + std::to_string(nb_frames) + ".png");
-        cv::imwrite(img_name, image);
+        // Send the image to the receiver
+        receiver.Accept(image);
       }
       // END - custom code from here
       //////////////////////////////////////////////////////////////////
