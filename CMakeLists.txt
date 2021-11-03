@@ -8,6 +8,9 @@ project(video-detect VERSION 1.0)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Set target compile options
+add_compile_options("-Wno-deprecated-declarations")
+
 # Add the include directories
 include_directories(include)
 

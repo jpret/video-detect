@@ -1,9 +1,0 @@
-{
-    "name": "video-detect",
-    "version-string": "0.1.0",
-    "dependencies": [
-      "gtest",
-      "ffmpeg",
-      "opencv2"
-    ]
-  }
