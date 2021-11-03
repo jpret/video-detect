@@ -17,7 +17,8 @@ namespace video_detect {
 namespace util {
 
 /**
- * The Worker class handles the execution of work / jobs in the program
+ * The Worker class handles the execution of work / jobs in the program.
+ * It is a single threaded worker.
  */
 class Worker : public ObjectReceiver<std::function<void()>> {
 public:

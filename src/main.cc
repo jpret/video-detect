@@ -1,3 +1,4 @@
+
 #include "video-detect/ff2cv.h"
 #include <functional>
 #include <iostream>
@@ -15,7 +16,12 @@ int main(int argc, const char *argv[]) {
   video_detect::img::HVEdgeDetector hv_edge_detector(worker, true);
 
   // Read the video and analyse the frames, send the frames to the hv_edge_detector
-  ff2cv("/workspaces/video-detect/test/data/mosaic-sample-big.mp4", 100, hv_edge_detector);
+  ff2cv("/workspaces/video-detect/test/data/mosaic-sample-big.mp4", 500, hv_edge_detector);
+
+  // Wait for worker to finish its work
+  while(worker.IsBusy()) {
+    // waiting...
+  }
 
   // Exit the application
   return EXIT_SUCCESS;

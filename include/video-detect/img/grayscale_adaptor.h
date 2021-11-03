@@ -30,9 +30,11 @@ public:
 
     // Save the images
     if (export_images_) {
-      cv::imwrite(
-          "normal_image_" + std::to_string(conversion_counter_) + ".png", img);
-      cv::imwrite("gray_image_" + std::to_string(conversion_counter_) + ".png",
+      cv::imwrite("GrayscaleAdaptor_input_image_" +
+                      std::to_string(conversion_counter_) + ".png",
+                  img);
+      cv::imwrite("GrayscaleAdaptor_output_image_" +
+                      std::to_string(conversion_counter_) + ".png",
                   img_gray);
     }
 
