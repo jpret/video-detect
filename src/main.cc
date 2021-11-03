@@ -1,20 +1,22 @@
 #include "video-detect/ff2cv.h"
-#include "video-detect/img_grayscale_adaptor.h"
 #include <functional>
 #include <iostream>
 
+#include "video-detect/img/hv_edge_detector.h"
+#include "video-detect/util/worker.h"
 
 int main(int argc, const char *argv[]) {
-  std::cout << "Hello World!" << std::endl;
+  std::cout << "CppEngineer: Video Detect!" << std::endl;
 
-  const char test_vid[] =
-      "/workspaces/video-detect/test/data/mosaic-sample-big.mp4";
-  const char *args_v[] = {argv[0], &test_vid[0], nullptr};
-  int args_c = sizeof(args_v) / sizeof(char *) - 1;
+  // Create a worker for executing work in the program
+  video_detect::util::Worker worker;
 
-  cppeng::video_detect::ImgGrayScaleAdaptor img_gray_scale_adaptor;
+  // Create a Horizontal Vertical Edge Detector
+  video_detect::img::HVEdgeDetector hv_edge_detector(worker, true);
 
-  cppeng::video_detect::ff2cv(args_c, args_v, img_gray_scale_adaptor);
+  // Read the video and analyse the frames, send the frames to the hv_edge_detector
+  ff2cv("/workspaces/video-detect/test/data/mosaic-sample-big.mp4", 100, hv_edge_detector);
 
+  // Exit the application
   return EXIT_SUCCESS;
 }

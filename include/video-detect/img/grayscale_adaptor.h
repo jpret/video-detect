@@ -6,22 +6,22 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "video-detect/util/object_receiver.h"
+#include "video-detect/util/chainable_object_receiver.h"
 
-namespace cppeng {
 namespace video_detect {
+namespace img {
 
-class ImgGrayScaleAdaptor : public util::ObjectReceiver<cv::Mat> {
+class GrayscaleAdaptor : public util::ChainableObjectReceiver<cv::Mat> {
 public:
   /**
-   * The ImgGrayScaleAdaptor constructor sets the flag to export images of the
+   * The GrayscaleAdaptor constructor sets the flag to export images of the
    * conversion or not
    */
-  explicit ImgGrayScaleAdaptor(bool export_images)
+  explicit GrayscaleAdaptor(bool export_images)
       : export_images_(export_images), conversion_counter_(0) {}
 
   void Accept(cv::Mat img) override {
-    
+
     // Create a new Mat class for the grayscale image
     cv::Mat img_gray;
 
@@ -38,6 +38,9 @@ public:
 
     // Increase the counter
     ++conversion_counter_;
+
+    // Continue the chain with the grayscale image
+    ChainableObjectReceiver::Accept(img_gray);
   }
 
 private:
@@ -45,7 +48,7 @@ private:
   const bool export_images_;
 };
 
+} // namespace img
 } // namespace video_detect
-} // namespace cppeng
 
 #endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_GRAYSCALE_ADAPTOR_H_

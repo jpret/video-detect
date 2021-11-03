@@ -3,7 +3,6 @@
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_OBJECT_RECEIVER_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_OBJECT_RECEIVER_H_
 
-namespace cppeng {
 namespace video_detect {
 namespace util {
 
@@ -23,6 +22,5 @@ public:
 
 } // namespace util
 } // namespace video_detect
-} // namespace cppeng
 
 #endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_OBJECT_RECEIVER_H_

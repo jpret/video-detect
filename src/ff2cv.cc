@@ -2,6 +2,8 @@
  * Read video frame with FFmpeg and convert to OpenCV image
  *
  * Copyright (c) 2016 yohhoy
+ *
+ * Source: https://gist.github.com/yohhoy/f0444d3fc47f2bb2d0e2
  */
 #include <iostream>
 #include <vector>
@@ -20,17 +22,8 @@ extern "C" {
 
 #include "video-detect/ff2cv.h"
 
-namespace cppeng {
-namespace video_detect {
-
-int ff2cv(int argc, const char *argv[],
-          util::ObjectReceiver<cv::Mat> &receiver) {
-
-  if (argc < 2) {
-    std::cout << "Usage: ff2cv <infile>" << std::endl;
-    return 1;
-  }
-  const char *infile = argv[1];
+int ff2cv(const char *video_file, int modulo_frame_count,
+          video_detect::util::ObjectReceiver<cv::Mat> &receiver) {
 
   // initialize FFmpeg library
   av_register_all();
@@ -39,9 +32,9 @@ int ff2cv(int argc, const char *argv[],
 
   // open input file context
   AVFormatContext *inctx = nullptr;
-  ret = avformat_open_input(&inctx, infile, nullptr, nullptr);
+  ret = avformat_open_input(&inctx, video_file, nullptr, nullptr);
   if (ret < 0) {
-    std::cerr << "fail to avforamt_open_input(\"" << infile
+    std::cerr << "fail to avforamt_open_input(\"" << video_file
               << "\"): ret=" << ret;
     return 2;
   }
@@ -70,7 +63,7 @@ int ff2cv(int argc, const char *argv[],
   }
 
   // print input video stream informataion
-  std::cout << "infile: " << infile << "\n"
+  std::cout << "video_file: " << video_file << "\n"
             << "format: " << inctx->iformat->name << "\n"
             << "vcodec: " << vcodec->name << "\n"
             << "size:   " << vstrm->codec->width << 'x' << vstrm->codec->height
@@ -142,12 +135,14 @@ int ff2cv(int argc, const char *argv[],
                     frame->linesize[0]);
 
       //////////////////////////////////////////////////////////////////
-      // START - custom code from here
+      // START - Custom code
+
+      // Grab only 100th frame (customizable later)
       if (nb_frames % 100 == 0) {
         // Send the image to the receiver
         receiver.Accept(image);
       }
-      // END - custom code from here
+      // END - Custom Code
       //////////////////////////////////////////////////////////////////
 
       if (cv::waitKey(1) == 0x1b)
@@ -166,6 +161,3 @@ int ff2cv(int argc, const char *argv[],
   avformat_close_input(&inctx);
   return 0;
 }
-
-} // namespace video_detect
-} // namespace cppeng

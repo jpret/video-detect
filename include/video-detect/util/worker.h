@@ -13,7 +13,6 @@
 #include <thread>
 #include <vector>
 
-namespace cppeng {
 namespace video_detect {
 namespace util {
 
@@ -94,6 +93,5 @@ private:
 
 } // namespace util
 } // namespace video_detect
-} // namespace cppeng
 
 #endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_EXECUTOR_H_

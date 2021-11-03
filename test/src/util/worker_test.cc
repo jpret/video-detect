@@ -4,7 +4,6 @@
 #include "video-detect/util/mock_object_receiver.h"
 #include "video-detect/util/worker.h"
 
-namespace cppeng {
 namespace video_detect {
 namespace util {
 
@@ -26,4 +25,3 @@ TEST(UtilTests, WorkerTestExecution) {
 
 } // namespace util
 } // namespace video_detect
-} // namespace cppeng

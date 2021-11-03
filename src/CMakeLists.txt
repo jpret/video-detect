@@ -11,7 +11,7 @@ find_library(AVFORMAT_LIBRARY avformat REQUIRED)
 find_path(SWSCALE_INCLUDE_DIR libswscale/swscale.h)
 find_library(SWSCALE_LIBRARY swscale REQUIRED)
 
-# Find OpenCV package
+# Find package(s)
 find_package( OpenCV REQUIRED )
 
 # List sources
@@ -35,7 +35,8 @@ target_link_libraries(${PROJECT_NAME}
                         ${AVFORMAT_LIBRARY} 
                         -lavutil
                         ${SWSCALE_LIBRARY}
-                        ${OpenCV_LIBS})
+                        ${OpenCV_LIBS}
+                        -pthread)
 
 # Set output directories
 set_target_properties( ${PROJECT_NAME}
