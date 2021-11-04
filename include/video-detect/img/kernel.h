@@ -4,6 +4,7 @@
 
 #include <initializer_list>
 #include <vector>
+#include <type_traits>
 
 #include "video-detect/img/two_dim_matrix.h"
 
@@ -23,7 +24,12 @@ public:
    */
   explicit Kernel(TwoDimMatrix<T> &&matrix) : matrix_(std::move(matrix)) {}
 
-  T GetValue(int row, int col) {
+  /**
+   *  Get the value of the Kernel for the specified coordinate
+   *  @param row the row / y-axis coordinate
+   *  @param col the column / x-axis coordinate
+   */
+  T GetValue(int row, int col) const {
     if (row < matrix_.size()) {
       if (col < matrix_.at(row).size()) {
         return matrix_.at(row).at(col);
@@ -33,14 +39,34 @@ public:
     return T();
   }
 
-  int GetRowCount() { return matrix_.size(); }
+  /**
+   * Get the Row count
+   */
+  int GetRowCount() const { return matrix_.size(); }
 
-  int GetColCount() {
+  /**
+   * Get the Column count
+   */ 
+  int GetColCount() const {
     if (!matrix_.empty()) {
       return matrix_.front().size();
     } else {
       return 0;
     }
+  }
+
+  /**
+   * Get the sum of the contents (only if it is arithmetic)
+   */ 
+  template <typename Q = T, typename = std::enable_if_t<std::is_arithmetic<Q>::value>>
+  Q GetSumOfContents() const {
+    Q sum = Q();
+    for (const auto &row : matrix_) {
+      for (const auto &col : row) {
+        sum += col;
+      }
+    }
+    return sum;
   }
 
 private:

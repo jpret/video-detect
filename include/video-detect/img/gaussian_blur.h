@@ -7,6 +7,7 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/highgui.hpp>
 
+#include "video-detect/img/kernel.h"
 #include "video-detect/util/chainable_object_receiver.h"
 
 namespace video_detect {
@@ -48,15 +49,14 @@ private:
   const bool export_images_;
 
   // Gaussian kernel 3x3
-  const std::vector<std::vector<int>> kernel_3x3{
-      {1, 2, 1}, {2, 4, 2}, {1, 2, 1}};
+  const Kernel<int> kernel_3x3{{{1, 2, 1}, {2, 4, 2}, {1, 2, 1}}};
 
   // Gaussian kernel 5x5
-  const std::vector<std::vector<int>> kernel_5x5{{1, 4, 7, 4, 1},
-                                                 {4, 16, 26, 16, 4},
-                                                 {7, 26, 41, 26, 7},
-                                                 {4, 16, 26, 16, 4},
-                                                 {1, 4, 7, 4, 1}};
+  const Kernel<int> kernel_5x5{{{1, 4, 7, 4, 1},
+                                {4, 16, 26, 16, 4},
+                                {7, 26, 41, 26, 7},
+                                {4, 16, 26, 16, 4},
+                                {1, 4, 7, 4, 1}}};
 
   cv::Mat BlurImage(const cv::Mat &img) {
     cv::Mat img_blur = img.clone();
