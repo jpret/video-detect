@@ -44,5 +44,5 @@ TEST(ImgTests, KernelTestGetSum) {
   EXPECT_EQ(kernel_float.GetSumOfContents(),40.5);
 }
 
-} // namespace util
+} // namespace img
 } // namespace video_detect

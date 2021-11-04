@@ -3,6 +3,7 @@
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_CONV_H_
 
 #include <iostream>
+#include <type_traits>
 #include <vector>
 
 #include <opencv2/core/mat.hpp>
@@ -14,36 +15,52 @@ namespace video_detect {
 namespace img {
 
 /**
- * This function uses convulution between the provided Matrix and the Kernel
- * @param mat       a 2D matrix with 3 channels depth e.g. a RGB image
- * @param kernel    an integer Kernel to use in the Convolution
+ * This function uses convolution between the provided Matrix and the Kernel.
+ * The template only allows integral types (e.g. int / float)
+ * @param mat       a 2D matrix with a single channel depth e.g. a greyscale
+ * image
+ * @param kernel    an integral Kernel to use in the Convolution
  * @return          the resulting 2D matrix
  */
-static cv::Mat ConvCvMat3bKernel(const cv::Mat &mat,
-                                 const Kernel<int> &kernel) {
-  cv::Mat result = mat.clone();
+template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+cv::Mat ConvCvMatKernel(const cv::Mat &mat, const Kernel<T> &kernel) {
+  // Create an empty matrix for the result
+  cv::Mat result(mat.rows, mat.cols, CV_8UC1, cv::Scalar(0));
 
-  // Two D - traverse the matrix
+  // Determine offsets
+  const int kRowOffset = kernel.GetRowCount() / 2;
+  const int kColOffset = kernel.GetColCount() / 2;
+
+  // 2D cv::Mat - Traverse the matrix
   for (int row = 0; row < mat.rows; row++) {
     for (int col = 0; col < mat.cols; col++) {
 
-      // Now travers the perform the matrix multiplication
-      uint8_t r{},g{},b{};
+      // Perform the matrix multiplication
+      T sum{};
 
-      for (int y = -kernel.GetRowCount() / 2; y < kernel.GetRowCount() / 2;
-           y++) {
-        for (int x = -kernel.GetColCount() / 2; x < kernel.GetColCount() / 2;
-             x++) {
-          // Multiply the matrix value with the corresponding kernel value       
-          r += (uint8_t)result.at<cv::Vec3b>(row + y, col + x)[0];
-          g += (uint8_t)result.at<cv::Vec3b>(row + y, col + x)[1];
-          b += (uint8_t)result.at<cv::Vec3b>(row + y, col + x)[2];
+      for (int x = 0; x < kernel.GetColCount(); x++) {
+        for (int y = 0; y < kernel.GetRowCount(); y++) {
+
+          // Get the Kernel value at this point
+          const T kKernelValue = kernel.GetValue(y, x);
+
+          // Get the target matrix coordinate while taking into account the
+          // offset of the Kernel coordinates
+          const int kRowTarget = row - kRowOffset + y;
+          const int kColTarget = col - kColOffset + x;
+
+          // Only run the summation if the target coordinate is in the bounds
+          if (kRowTarget >= 0 && kColTarget >= 0 && kRowTarget < mat.rows &&
+              kColTarget < mat.cols) {
+
+            // Multiply the matrix value with the corresponding kernel value
+            sum += mat.at<uint8_t>(kRowTarget, kColTarget) * kKernelValue;
+          }
         }
       }
-      // Set the new pixel value  
-      result.at<cv::Vec3b>(row, col, 0) = r / kernel.GetSumOfContents();
-      result.at<cv::Vec3b>(row, col, 1) = g / kernel.GetSumOfContents();
-      result.at<cv::Vec3b>(row, col, 2) = b / kernel.GetSumOfContents();
+
+      // Set the new pixel value
+      result.at<uint8_t>(row, col) = static_cast<uint8_t>(sum);
     }
   }
 

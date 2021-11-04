@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.12.0)
 
 # Find packages
 find_package(GTest CONFIG REQUIRED)
+find_package( OpenCV REQUIRED )
 
 # List sources
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "*.cc")
@@ -22,7 +23,12 @@ set_target_properties( ${PROJECT_NAME}_test
 )
 
 # Link libraries
-target_link_libraries(${PROJECT_NAME}_test PRIVATE GTest::gmock GTest::gtest GTest::gmock_main GTest::gtest_main)
+target_link_libraries(${PROJECT_NAME}_test PRIVATE 
+GTest::gmock 
+GTest::gtest 
+GTest::gmock_main 
+GTest::gtest_main
+${OpenCV_LIBS})
 
 # add test to enable use of make test
 add_test(${PROJECT_NAME}_test ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_test)

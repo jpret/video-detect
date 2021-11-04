@@ -42,7 +42,7 @@ public:
     if (!handler_chain.empty()) {
       // Pass the handler chain entry point to the worker via a lambda
       // This will now be handled by the worker
-      worker_.Accept([this, img]() { 
+      worker_.Accept([this, img = std::move(img)]() { 
         handler_chain.front()->Accept(img); }
         );
     }
@@ -50,7 +50,7 @@ public:
 
 private:
   util::Worker &worker_;
-  std::vector<std::unique_ptr<util::ObjectReceiver<cv::Mat>>> handler_chain;
+  std::vector<std::unique_ptr<util::ObjectReceiver<const cv::Mat &>>> handler_chain;
 };
 
 } // namespace img
