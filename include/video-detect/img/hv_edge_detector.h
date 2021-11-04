@@ -2,8 +2,9 @@
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_
 
-#include "video-detect/img/grayscale_adaptor.h"
 #include "video-detect/img/gaussian_blur.h"
+#include "video-detect/img/grayscale_adaptor.h"
+#include "video-detect/img/sobel_xy_filter.h"
 #include "video-detect/util/object_receiver.h"
 #include "video-detect/util/worker.h"
 
@@ -22,12 +23,13 @@ public:
     // 1. A grayscale adaptor
     auto grayscale_adaptor = std::make_unique<GrayscaleAdaptor>(export_images);
 
-    // 2. A Gaussian blur filter
+    // 2. A Gaussian blur filter -> requires a grayscale image as input
     auto gaussian_blur = std::make_unique<GaussianBlur>(export_images);
     grayscale_adaptor->AppendToChain(*gaussian_blur);
 
     // 3. Sobel Edge detection filter
-    // TODO
+    auto sobel_xy_filter = std::make_unique<SobelXYFilter>(export_images);
+    grayscale_adaptor->AppendToChain(*sobel_xy_filter);
 
     // 4. Edge extractor
     // TODO
@@ -35,6 +37,7 @@ public:
     // Push the items to the vector owning the chain instances
     handler_chain.push_back(std::move(grayscale_adaptor));
     handler_chain.push_back(std::move(gaussian_blur));
+    handler_chain.push_back(std::move(sobel_xy_filter));
   }
 
   void Accept(cv::Mat img) override {
@@ -42,15 +45,16 @@ public:
     if (!handler_chain.empty()) {
       // Pass the handler chain entry point to the worker via a lambda
       // This will now be handled by the worker
-      worker_.Accept([this, img = std::move(img)]() { 
-        handler_chain.front()->Accept(img); }
-        );
+      worker_.Accept([this, img = std::move(img)]() {
+        handler_chain.front()->Accept(img);
+      });
     }
   }
 
 private:
   util::Worker &worker_;
-  std::vector<std::unique_ptr<util::ObjectReceiver<const cv::Mat &>>> handler_chain;
+  std::vector<std::unique_ptr<util::ObjectReceiver<const cv::Mat &>>>
+      handler_chain;
 };
 
 } // namespace img
