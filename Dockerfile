@@ -1,33 +1,33 @@
 FROM gcc:latest
 
 # Install dependencies
-RUN apt update
-RUN apt -y install cmake
+RUN apt-get update
+RUN apt-get -y install cmake
 
 # Install FFMPEG dependencies
-RUN apt -y install libavcodec-dev
-RUN apt -y install libavformat-dev
-RUN apt -y install libavutil-dev
-RUN apt -y install libswscale-dev
+RUN apt-get -y install libavcodec-dev
+RUN apt-get -y install libavformat-dev
+RUN apt-get -y install libavutil-dev
+RUN apt-get -y install libswscale-dev
 
 # Install OpenCV dependencies
-RUN apt -y install libopencv-dev
+RUN apt-get -y install libopencv-dev
 
 # Install GoogleTest dependencies
-RUN apt -y install libgtest-dev
-RUN apt -y install libgmock-dev
+RUN apt-get -y install libgtest-dev
+RUN apt-get -y install libgmock-dev
 
 # Install code quality dependencies
-RUN apt -y install pip
+RUN apt-get -y install pip
 RUN pip install cpplint
 
 # Install development dependencies
-RUN apt -y install clang-format
-RUN apt -y install gdb
+RUN apt-get -y install clang-format
+RUN apt-get -y install gdb
 
 # Copy all files in repository into image
-WORKDIR /cppeng
-COPY ./* /cppeng/
+WORKDIR /cppeng/video-detect
+COPY . .
 
 # Build project and run tests
 WORKDIR /cppeng/video-detect/build
