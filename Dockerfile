@@ -19,7 +19,7 @@ RUN apt -y install libgmock-dev
 
 # Install code quality dependencies
 RUN apt -y install pip
-RUN apt -y install cpplint
+RUN pip install cpplint -y
 
 # Clone repository
 WORKDIR /cppeng
