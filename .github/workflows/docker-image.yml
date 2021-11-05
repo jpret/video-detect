@@ -28,5 +28,5 @@ jobs:
     - name: Docker Push
       run: docker push cppengineer/video-detect:latest
       
-     - name: Docker Logout
+    - name: Docker Logout
       run: docker logout
