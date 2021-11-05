@@ -1,3 +1,6 @@
+/**
+ * MIT License Copyright (c) 2021 CppEngineer
+ */
 
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_CONV_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_CONV_H_

@@ -17,6 +17,10 @@ RUN apt -y install libopencv-dev
 RUN apt -y install libgtest-dev
 RUN apt -y install libgmock-dev
 
+# Install code quality dependencies
+RUN apt -y install pip
+RUN apt -y install cpplint
+
 # Clone repository
 WORKDIR /cppeng
 RUN git clone https://github.com/cppengineer/video-detect.git

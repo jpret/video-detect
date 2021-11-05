@@ -26,7 +26,8 @@ target_include_directories(${PROJECT_NAME}
                             ${AVCODEC_INCLUDE_DIR} 
                             ${AVFORMAT_INCLUDE_DIR} 
                             ${SWSCALE_INCLUDE_DIR}
-                            ${OpenCV_INCLUDE_DIRS})
+                            ${OpenCV_INCLUDE_DIRS}
+                            ${PROJECT_SOURCE_DIR}/include)
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} 
@@ -45,3 +46,13 @@ set_target_properties( ${PROJECT_NAME}
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+
+# Only check styles if instructed to do so
+if (CHECK_STYLES) 
+    add_custom_command(
+        TARGET ${PROJECT_NAME}
+        PRE_BUILD
+        COMMAND cpplint "--recursive" "./*"
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        COMMENT "Running style checks...")
+endif()

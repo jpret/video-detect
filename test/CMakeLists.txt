@@ -12,7 +12,7 @@ file(GLOB_RECURSE sources CONFIGURE_DEPENDS "*.cc")
 add_executable(${PROJECT_NAME}_test ${sources})
 
 # Add tests include folder
-target_include_directories(${PROJECT_NAME}_test PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
+target_include_directories(${PROJECT_NAME}_test PRIVATE ${PROJECT_SOURCE_DIR}/test/include ${PROJECT_SOURCE_DIR}/include)
 
 # Set output directories
 set_target_properties( ${PROJECT_NAME}_test

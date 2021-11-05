@@ -1,3 +1,6 @@
+/**
+ * MIT License Copyright (c) 2021 CppEngineer
+ */
 
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_KERNEL_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_KERNEL_H_
@@ -22,7 +25,7 @@ public:
    *
    * @example Kernel kernel{{0,1}{1,0}};
    */
-  explicit Kernel(TwoDimMatrix<T> &&matrix) : matrix_(std::move(matrix)) {}
+  explicit Kernel(Vector2D<T> &&matrix) : matrix_(std::move(matrix)) {}
 
   /**
    *  Get the value of the Kernel for the specified coordinate
@@ -70,7 +73,7 @@ public:
   }
 
 private:
-  const TwoDimMatrix<T> matrix_;
+  const Vector2D<T> matrix_;
 };
 
 } // namespace img

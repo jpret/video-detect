@@ -1,3 +1,7 @@
+/**
+ * MIT License Copyright (c) 2021 CppEngineer
+ */
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 

@@ -1,3 +1,6 @@
+/**
+ * MIT License Copyright (c) 2021 CppEngineer
+ */
 
 #include "video-detect/ff2cv.h"
 #include <functional>
