@@ -21,15 +21,13 @@ RUN apt -y install libgmock-dev
 RUN apt -y install pip
 RUN pip install cpplint
 
-# Clone repository
-WORKDIR /cppeng
-RUN git clone https://github.com/cppengineer/video-detect.git
-
-# TEMPORARY
+# Install development dependencies
 RUN apt -y install clang-format
 RUN apt -y install gdb
-WORKDIR /cppeng/video-detect
-RUN git checkout origin/development/main
+
+# Copy all files in repository into image
+WORKDIR /cppeng
+COPY ./* /cppeng/
 
 # Build project and run tests
 WORKDIR /cppeng/video-detect/build
