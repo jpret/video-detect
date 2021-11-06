@@ -33,12 +33,12 @@ Mat2D<MatType> ConvMat2D(const Mat2D<MatType> &mat,
   for (int row = 0; row < rows; row++) {
     for (int col = 0; col < cols; col++) {
       // Perform the matrix multiplication
-      MatType sum{};
+      KernelType sum{};
 
       for (int x = 0; x < kernel.GetColCount(); x++) {
         for (int y = 0; y < kernel.GetRowCount(); y++) {
           // Get the Mat2D value at this point
-          const MatType kKernelValue = kernel.GetValue(y, x);
+          const KernelType kKernelValue = kernel.GetValue(y, x);
 
           // Get the target matrix coordinate while taking into account the
           // offset of the Mat2D coordinates

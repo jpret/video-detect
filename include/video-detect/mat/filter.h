@@ -11,6 +11,7 @@
 #include "video-detect/mat/mat_2d.h"
 #include "video-detect/util/chainable_object_receiver.h"
 
+
 namespace video_detect {
 namespace mat {
 
@@ -31,8 +32,7 @@ class Filter : public util::ChainableObjectReceiver<const Mat2D<MatType> &> {
    * @param kernel a 2D matrix with the Kernel to use on matrices during
    *               filtering
    */
-  explicit Filter(const mat::Mat2D<KernelType> &kernel)
-      : kernel_(kernel) {}
+  explicit Filter(const mat::Mat2D<KernelType> &kernel) : kernel_(kernel) {}
 
   void Accept(const Mat2D<MatType> &mat) override {
     // Create a new Mat class from the filtered matrix

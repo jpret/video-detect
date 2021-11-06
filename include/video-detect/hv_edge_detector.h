@@ -6,6 +6,7 @@
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "video-detect/mat/mat_2d.h"
@@ -20,7 +21,7 @@ namespace video_detect {
  */
 class HVEdgeDetector : public util::ObjectReceiver<const mat::Mat2D<uint8_t>&> {
  public:
-  explicit HVEdgeDetector(bool export_images);
+  explicit HVEdgeDetector(bool export_images, const std::string& export_path);
 
   void Accept(const mat::Mat2D<uint8_t>& img) override;
 

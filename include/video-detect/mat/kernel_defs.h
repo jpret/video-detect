@@ -14,6 +14,12 @@ static const Mat2D<float> kKernelGaussian3x3{{{1.f / 24, 2.f / 24, 1.f / 24},
                                               {2.f / 24, 4.f / 24, 2.f / 24},
                                               {1.f / 24, 2.f / 24, 1.f / 24}}};
 
+static const Mat2D<int8_t> kKernelHLine3x3{
+    {{-1, -1, -1}, {2, 2, 2}, {-1, -1, -1}}};
+
+static const Mat2D<int8_t> kKernelVLine3x3{
+    {{-1, 2, -1}, {-1, 2, -1}, {-1, 2, -1}}};
+
 }  // namespace mat
 }  // namespace video_detect
 
