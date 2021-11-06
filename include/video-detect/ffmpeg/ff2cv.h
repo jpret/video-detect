@@ -30,7 +30,7 @@ namespace ffmpeg {
  * receiver
  */
 int ff2cv(const char *video_file, int modulo_frame_count,
-          video_detect::util::ObjectReceiver<cv::Mat> *receiver);
+          video_detect::util::ObjectReceiver<const cv::Mat&> *receiver);
 
 }  // namespace ffmpeg
 }  // namespace video_detect

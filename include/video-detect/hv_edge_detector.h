@@ -10,59 +10,44 @@
 #include <vector>
 
 #include "video-detect/mat/filter.h"
-#include "video-detect/mat/gaussian_blur.h"
-#include "video-detect/mat/grayscale_adaptor.h"
-#include "video-detect/mat/sobel_xy_filter.h"
+#include "video-detect/mat/kernel_defs.h"
 #include "video-detect/util/object_receiver.h"
-#include "video-detect/util/worker.h"
 
 namespace video_detect {
 
 /**
- * The EdgeDetector class converts and filters a received image to find
+ * The HVEdgeDetector class converts and filters a received matrix to find
  * horizontal and vertical edges
  */
-class HVEdgeDetector : public util::ObjectReceiver<cv::Mat> {
+class HVEdgeDetector : public util::ObjectReceiver<const mat::Mat2D<uint8_t>&> {
  public:
-  explicit HVEdgeDetector(util::Worker &worker,  // NOLINT(runtime/references)
-                          bool export_images)
-      : worker_(worker) {
-    // Setup the conversion chain strategy:
-    // 1. A grayscale adaptor
-    auto grayscale_adaptor =
-        std::make_unique<mat::GrayscaleAdaptor>(export_images);
+  explicit HVEdgeDetector(bool export_images) {
+    // Setup the conversion chain strategy
+    // 1. A Gaussian blur filter -> requires a grayscale image as input
+    auto gaussian_blur =
+        std::make_unique<mat::Filter<uint8_t, float>>(mat::kKernelGaussian3x3);
 
-    // 2. A Gaussian blur filter -> requires a grayscale image as input
-    auto gaussian_blur = std::make_unique<mat::GaussianBlur>(export_images);
-    grayscale_adaptor->AppendToChain(*gaussian_blur);
+    // 2. Horizontal edge detection filter
 
-    // 3. Sobel Edge detection filter
-    auto sobel_xy_filter = std::make_unique<mat::SobelXYFilter>(export_images);
-    grayscale_adaptor->AppendToChain(*sobel_xy_filter);
+    // 3. Vertical edge detection filter
 
-    // 4. Edge extractor
-    // TODO(jangabriel) add extractor
+    // 4. Split the chain
+
+    // 5. Combine the chain
 
     // Push the items to the vector owning the chain instances
-    handler_chain.push_back(std::move(grayscale_adaptor));
+    // handler_chain.push_back(std::move(grayscale_adaptor));
     handler_chain.push_back(std::move(gaussian_blur));
-    handler_chain.push_back(std::move(sobel_xy_filter));
   }
 
-  void Accept(cv::Mat img) override {
-    // Send the image to the handler chain via the worker
+  void Accept(const mat::Mat2D<uint8_t>& img) override {
     if (!handler_chain.empty()) {
-      // Pass the handler chain entry point to the worker via a lambda
-      // This will now be handled by the worker
-      worker_.Accept([this, img = std::move(img)]() {
-        handler_chain.front()->Accept(img);
-      });
+      handler_chain.front()->Accept(img);
     }
   }
 
  private:
-  util::Worker &worker_;
-  std::vector<std::unique_ptr<util::ObjectReceiver<const cv::Mat &>>>
+  std::vector<std::unique_ptr<util::ObjectReceiver<const mat::Mat2D<uint8_t>&>>>
       handler_chain;
 };
 

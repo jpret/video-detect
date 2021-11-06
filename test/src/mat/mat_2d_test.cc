@@ -4,7 +4,6 @@
 
 #include "video-detect/mat/mat_2d.h"
 
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
 namespace video_detect {

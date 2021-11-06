@@ -34,7 +34,7 @@ namespace video_detect {
 namespace ffmpeg {
 
 int ff2cv(const char *video_file, int modulo_frame_count,
-          video_detect::util::ObjectReceiver<cv::Mat> *receiver) {
+          video_detect::util::ObjectReceiver<const cv::Mat&> *receiver) {
   // initialize FFmpeg library
   av_register_all();
   //  av_log_set_level(AV_LOG_DEBUG);
