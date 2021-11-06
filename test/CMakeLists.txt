@@ -12,7 +12,7 @@ file(GLOB_RECURSE sources CONFIGURE_DEPENDS "*.cc")
 add_executable(${PROJECT_NAME}_test ${sources})
 
 # Add tests include folder
-target_include_directories(${PROJECT_NAME}_test PRIVATE ${PROJECT_SOURCE_DIR}/test/include ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME}_test PRIVATE ${PROJECT_SOURCE_DIR}/test/include)
 
 # Set output directories
 set_target_properties( ${PROJECT_NAME}_test
@@ -24,11 +24,12 @@ set_target_properties( ${PROJECT_NAME}_test
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME}_test PRIVATE 
-GTest::gmock 
-GTest::gtest 
-GTest::gmock_main 
-GTest::gtest_main
-${OpenCV_LIBS})
+                    GTest::gmock 
+                    GTest::gtest 
+                    GTest::gmock_main 
+                    GTest::gtest_main
+                    ${OpenCV_LIBS}
+                    ${PROJECT_NAME}_lib)
 
 # add test to enable use of make test
 add_test(${PROJECT_NAME}_test ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_test)

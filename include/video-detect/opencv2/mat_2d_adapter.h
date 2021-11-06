@@ -5,8 +5,9 @@
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_OPENCV2_MAT_2D_ADAPTER_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_OPENCV2_MAT_2D_ADAPTER_H_
 
-#include <opencv2/core/mat.hpp>
 #include <utility>
+
+#include <opencv2/core/mat.hpp>
 
 #include "video-detect/mat/mat_2d.h"
 #include "video-detect/mat/vector_2d.h"

@@ -17,34 +17,55 @@ find_package( OpenCV REQUIRED )
 # List sources
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "*.cc")
 
+# Set the include directories
+set(include_directories 
+        ${AVCODEC_INCLUDE_DIR} 
+        ${AVFORMAT_INCLUDE_DIR} 
+        ${SWSCALE_INCLUDE_DIR}
+        ${OpenCV_INCLUDE_DIRS})
+
+# Set the link libraries
+set(link_libraries 
+        ${AVCODEC_LIBRARY} 
+        ${AVFORMAT_LIBRARY} 
+        -lavutil
+        ${SWSCALE_LIBRARY}
+        ${OpenCV_LIBS}
+        -pthread)
+
 # Create the executable
 add_executable(${PROJECT_NAME} ${sources})
 
 # Add include directories
 target_include_directories(${PROJECT_NAME} 
-                            PRIVATE 
-                            ${AVCODEC_INCLUDE_DIR} 
-                            ${AVFORMAT_INCLUDE_DIR} 
-                            ${SWSCALE_INCLUDE_DIR}
-                            ${OpenCV_INCLUDE_DIRS}
-                            ${PROJECT_SOURCE_DIR}/include)
+                            PRIVATE ${include_directories} ${PROJECT_SOURCE_DIR}/include)
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} 
-                        PRIVATE 
-                        ${AVCODEC_LIBRARY} 
-                        ${AVFORMAT_LIBRARY} 
-                        -lavutil
-                        ${SWSCALE_LIBRARY}
-                        ${OpenCV_LIBS}
-                        -pthread)
+                        PRIVATE ${link_libraries})
 
 # Set output directories
 set_target_properties( ${PROJECT_NAME}
     PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
+# Create a library
+add_library(${PROJECT_NAME}_lib SHARED ${sources})
+
+# Add include directories
+target_include_directories(${PROJECT_NAME}_lib 
+                           PRIVATE ${include_directories}
+                           PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+# Link libraries
+target_link_libraries(${PROJECT_NAME}_lib 
+                      PRIVATE ${link_libraries})
+
+# Set output directories
+set_target_properties( ${PROJECT_NAME}_lib
+    PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
 
 # Only check styles if instructed to do so
