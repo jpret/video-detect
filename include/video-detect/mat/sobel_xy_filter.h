@@ -11,7 +11,7 @@
 #include <opencv2/highgui.hpp>
 
 #include "video-detect/mat/conv.h"
-#include "video-detect/mat/kernel.h"
+#include "video-detect/mat/mat_2d.h"
 #include "video-detect/util/chainable_object_receiver.h"
 
 namespace video_detect {
@@ -73,8 +73,8 @@ class SobelXYFilter : public util::ChainableObjectReceiver<const cv::Mat &> {
   const bool export_images_;
 
   // Gaussian kernel 3x3
-  const Kernel<int> sobel_x_3x3_{{{1, 0, -1}, {2, 0, -2}, {1, 0, -1}}};
-  const Kernel<int> sobel_y_3x3_{{{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}}};
+  const Mat2D<int> sobel_x_3x3_{{{1, 0, -1}, {2, 0, -2}, {1, 0, -1}}};
+  const Mat2D<int> sobel_y_3x3_{{{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}}};
 };
 
 }  // namespace mat

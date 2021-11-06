@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "video-detect/mat/filter.h"
 #include "video-detect/mat/gaussian_blur.h"
 #include "video-detect/mat/grayscale_adaptor.h"
 #include "video-detect/mat/sobel_xy_filter.h"

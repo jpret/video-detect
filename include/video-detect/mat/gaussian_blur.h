@@ -11,7 +11,7 @@
 #include <opencv2/highgui.hpp>
 
 #include "video-detect/mat/conv.h"
-#include "video-detect/mat/kernel.h"
+#include "video-detect/mat/mat_2d.h"
 #include "video-detect/util/chainable_object_receiver.h"
 
 namespace video_detect {
@@ -52,7 +52,7 @@ class GaussianBlur : public util::ChainableObjectReceiver<const cv::Mat &> {
   const bool export_images_;
 
   // Gaussian kernel 3x3
-  const Kernel<float> kernel_3x3_{{{1.f / 24, 2.f / 24, 1.f / 24},
+  const Mat2D<float> kernel_3x3_{{{1.f / 24, 2.f / 24, 1.f / 24},
                                    {2.f / 24, 4.f / 24, 2.f / 24},
                                    {1.f / 24, 2.f / 24, 1.f / 24}}};
 };
