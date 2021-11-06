@@ -2,24 +2,25 @@
  * MIT License Copyright (c) 2021 CppEngineer
  */
 
-#ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_KERNEL_H_
-#define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_KERNEL_H_
+#ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_KERNEL_H_
+#define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_KERNEL_H_
 
 #include <initializer_list>
-#include <vector>
 #include <type_traits>
+#include <utility>
+#include <vector>
 
-#include "video-detect/img/two_dim_matrix.h"
+#include "video-detect/mat/vector_2d.h"
 
 namespace video_detect {
-namespace img {
-
+namespace mat {
 
 /**
  * The Kernel class is used together in the filter operation on a matrix
  */
-template <typename T> class Kernel {
-public:
+template <typename T>
+class Kernel {
+ public:
   /**
    * A Kernel is initialized using a 2D brace-enclosed initializer list
    *
@@ -49,7 +50,7 @@ public:
 
   /**
    * Get the Column count
-   */ 
+   */
   int GetColCount() const {
     if (!matrix_.empty()) {
       return matrix_.front().size();
@@ -60,8 +61,9 @@ public:
 
   /**
    * Get the sum of the contents (only if it is arithmetic)
-   */ 
-  template <typename Q = T, typename = std::enable_if_t<std::is_arithmetic<Q>::value>>
+   */
+  template <typename Q = T,
+            typename = std::enable_if_t<std::is_arithmetic<Q>::value>>
   Q GetSumOfContents() const {
     Q sum = Q();
     for (const auto &row : matrix_) {
@@ -72,11 +74,11 @@ public:
     return sum;
   }
 
-private:
+ private:
   const Vector2D<T> matrix_;
 };
 
-} // namespace img
-} // namespace video_detect
+}  // namespace mat
+}  // namespace video_detect
 
-#endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_KERNEL_H_
+#endif  // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_KERNEL_H_

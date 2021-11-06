@@ -2,18 +2,19 @@
  * MIT License Copyright (c) 2021 CppEngineer
  */
 
+#include "video-detect/mat/conv.h"
+
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
 #include <opencv2/core/mat.hpp>
 
-#include "video-detect/img/conv.h"
-#include "video-detect/img/kernel.h"
+#include "video-detect/mat/kernel.h"
 
 namespace video_detect {
-namespace img {
+namespace mat {
 
 TEST(ImgTests, ConvTestConvCvMatKernel) {
-
   // Create signle channel matrix (using the templated Mat_ version to allow for
   // using the << overload)
   cv::Mat_<uint8_t> mat(5, 5);
@@ -41,5 +42,5 @@ TEST(ImgTests, ConvTestConvCvMatKernel) {
   EXPECT_EQ(result.at<uint8_t>(3, 3), 4);
 }
 
-} // namespace img
-} // namespace video_detect
+}  // namespace mat
+}  // namespace video_detect

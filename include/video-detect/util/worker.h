@@ -5,15 +5,17 @@
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_WORKER_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_WORKER_H_
 
-#include "video-detect/util/object_receiver.h"
-
 #include <algorithm>
 #include <atomic>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <utility>
 #include <vector>
+
+#include "video-detect/util/object_receiver.h"
 
 namespace video_detect {
 namespace util {
@@ -23,7 +25,7 @@ namespace util {
  * It is a single threaded worker.
  */
 class Worker : public ObjectReceiver<std::function<void()>> {
-public:
+ public:
   /**
    * The Accept a lambda-type std::function to perform the work
    */
@@ -52,8 +54,8 @@ public:
 
   bool IsBusy() { return busy_; }
 
-private:
-  std::queue<std::function<void()>> jobs_; // queue to hold the jobs
+ private:
+  std::queue<std::function<void()>> jobs_;  // queue to hold the jobs
   std::unique_ptr<std::thread> thread_{nullptr};
   std::mutex queue_access_;
   std::atomic<bool> busy_{false};
@@ -63,7 +65,6 @@ private:
    * executor
    */
   void DoWork() {
-
     // Only start the working thread when it is not yet busy
     if (!busy_) {
       // Set the working flag
@@ -94,7 +95,7 @@ private:
   }
 };
 
-} // namespace util
-} // namespace video_detect
+}  // namespace util
+}  // namespace video_detect
 
-#endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_EXECUTOR_H_
+#endif  // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_WORKER_H_

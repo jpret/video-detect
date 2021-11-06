@@ -12,8 +12,9 @@ namespace util {
  * The ObjectReceiver class is a templated interface class to implement
  * for passing on values to a class
  */
-template <typename T, typename ReturnType = void> class ObjectReceiver {
-public:
+template <typename T, typename ReturnType = void>
+class ObjectReceiver {
+ public:
   /**
    * The Accept method must be implemented for the specified template T value
    */
@@ -22,7 +23,7 @@ public:
   virtual ~ObjectReceiver() = default;
 };
 
-} // namespace util
-} // namespace video_detect
+}  // namespace util
+}  // namespace video_detect
 
-#endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_OBJECT_RECEIVER_H_
+#endif  // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_OBJECT_RECEIVER_H_

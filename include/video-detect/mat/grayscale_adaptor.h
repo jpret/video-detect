@@ -2,8 +2,8 @@
  * MIT License Copyright (c) 2021 CppEngineer
  */
 
-#ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_GRAYSCALE_ADAPTOR_H_
-#define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_GRAYSCALE_ADAPTOR_H_
+#ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_GRAYSCALE_ADAPTOR_H_
+#define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_GRAYSCALE_ADAPTOR_H_
 
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -12,10 +12,10 @@
 #include "video-detect/util/chainable_object_receiver.h"
 
 namespace video_detect {
-namespace img {
+namespace mat {
 
 class GrayscaleAdaptor : public util::ChainableObjectReceiver<const cv::Mat &> {
-public:
+ public:
   /**
    * The GrayscaleAdaptor constructor sets the flag to export images of the
    * conversion or not
@@ -23,8 +23,7 @@ public:
   explicit GrayscaleAdaptor(bool export_images)
       : export_images_(export_images), conversion_counter_(0) {}
 
-  void Accept(const cv::Mat & img) override {
-
+  void Accept(const cv::Mat &img) override {
     // Create a new Mat class for the grayscale image
     cv::Mat img_gray;
 
@@ -48,12 +47,12 @@ public:
     ChainableObjectReceiver::Accept(img_gray);
   }
 
-private:
+ private:
   int conversion_counter_;
   const bool export_images_;
 };
 
-} // namespace img
-} // namespace video_detect
+}  // namespace mat
+}  // namespace video_detect
 
-#endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_GRAYSCALE_ADAPTOR_H_
+#endif  // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_GRAYSCALE_ADAPTOR_H_

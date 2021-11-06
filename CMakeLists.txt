@@ -12,8 +12,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_compile_options("-Wno-deprecated-declarations")
 
 # Set options
-option(CHECK_STYLES "Style Checks" OFF)
-option(BUILD_TESTS "Build tests" OFF)
+option(CHECK_STYLES "Check Styles" OFF)
+option(BUILD_TESTS "Build Tests" OFF)
 
 # Add the required sub-directories
 add_subdirectory(src)

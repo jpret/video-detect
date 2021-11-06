@@ -5,37 +5,42 @@
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_
 
-#include "video-detect/img/gaussian_blur.h"
-#include "video-detect/img/grayscale_adaptor.h"
-#include "video-detect/img/sobel_xy_filter.h"
+#include <memory>
+#include <utility>
+#include <vector>
+
+#include "video-detect/mat/gaussian_blur.h"
+#include "video-detect/mat/grayscale_adaptor.h"
+#include "video-detect/mat/sobel_xy_filter.h"
 #include "video-detect/util/object_receiver.h"
 #include "video-detect/util/worker.h"
 
 namespace video_detect {
-namespace img {
 
 /**
  * The EdgeDetector class converts and filters a received image to find
  * horizontal and vertical edges
  */
 class HVEdgeDetector : public util::ObjectReceiver<cv::Mat> {
-public:
-  explicit HVEdgeDetector(util::Worker &worker, bool export_images)
+ public:
+  explicit HVEdgeDetector(util::Worker &worker,  // NOLINT(runtime/references)
+                          bool export_images)
       : worker_(worker) {
     // Setup the conversion chain strategy:
     // 1. A grayscale adaptor
-    auto grayscale_adaptor = std::make_unique<GrayscaleAdaptor>(export_images);
+    auto grayscale_adaptor =
+        std::make_unique<mat::GrayscaleAdaptor>(export_images);
 
     // 2. A Gaussian blur filter -> requires a grayscale image as input
-    auto gaussian_blur = std::make_unique<GaussianBlur>(export_images);
+    auto gaussian_blur = std::make_unique<mat::GaussianBlur>(export_images);
     grayscale_adaptor->AppendToChain(*gaussian_blur);
 
     // 3. Sobel Edge detection filter
-    auto sobel_xy_filter = std::make_unique<SobelXYFilter>(export_images);
+    auto sobel_xy_filter = std::make_unique<mat::SobelXYFilter>(export_images);
     grayscale_adaptor->AppendToChain(*sobel_xy_filter);
 
     // 4. Edge extractor
-    // TODO
+    // TODO(jangabriel) add extractor
 
     // Push the items to the vector owning the chain instances
     handler_chain.push_back(std::move(grayscale_adaptor));
@@ -54,13 +59,12 @@ public:
     }
   }
 
-private:
+ private:
   util::Worker &worker_;
   std::vector<std::unique_ptr<util::ObjectReceiver<const cv::Mat &>>>
       handler_chain;
 };
 
-} // namespace img
-} // namespace video_detect
+}  // namespace video_detect
 
-#endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_
+#endif  // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_

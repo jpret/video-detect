@@ -5,26 +5,36 @@
  *
  * Source: https://gist.github.com/yohhoy/f0444d3fc47f2bb2d0e2
  */
+
 #include <iostream>
 #include <vector>
 
 // FFmpeg
+#ifdef __cplusplus
 extern "C" {
+#endif
+
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/avutil.h>
 #include <libavutil/pixdesc.h>
 #include <libswscale/swscale.h>
+
+#ifdef __cplusplus
 }
+#endif
+
 // OpenCV
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "video-detect/ff2cv.h"
+#include "video-detect/ffmpeg/ff2cv.h"
+
+namespace video_detect {
+namespace ffmpeg {
 
 int ff2cv(const char *video_file, int modulo_frame_count,
-          video_detect::util::ObjectReceiver<cv::Mat> &receiver) {
-
+          video_detect::util::ObjectReceiver<cv::Mat> *receiver) {
   // initialize FFmpeg library
   av_register_all();
   //  av_log_set_level(AV_LOG_DEBUG);
@@ -113,8 +123,7 @@ int ff2cv(const char *video_file, int modulo_frame_count,
         std::cerr << "fail to av_read_frame: ret=" << ret;
         return 2;
       }
-      if (ret == 0 && pkt.stream_index != vstrm_idx)
-        goto next_packet;
+      if (ret == 0 && pkt.stream_index != vstrm_idx) goto next_packet;
       end_of_stream = (ret == AVERROR_EOF);
     }
     if (end_of_stream) {
@@ -125,8 +134,7 @@ int ff2cv(const char *video_file, int modulo_frame_count,
     }
     // decode video frame
     avcodec_decode_video2(vstrm->codec, decframe, &got_pic, &pkt);
-    if (!got_pic)
-      goto next_packet;
+    if (!got_pic) goto next_packet;
     // convert frame to OpenCV matrix
     sws_scale(swsctx, decframe->data, decframe->linesize, 0, decframe->height,
               frame->data, frame->linesize);
@@ -140,15 +148,14 @@ int ff2cv(const char *video_file, int modulo_frame_count,
       // Grab only modulo_frame_count'th frame (customizable later)
       if (nb_frames % modulo_frame_count == 0) {
         // Send the image to the receiver
-        receiver.Accept(image);
+        receiver->Accept(image);
       }
       // END - Custom Code
       //////////////////////////////////////////////////////////////////
 
-      if (cv::waitKey(1) == 0x1b)
-        break;
+      if (cv::waitKey(1) == 0x1b) break;
     }
-    std::cout << nb_frames << '\r' << std::flush; // dump progress
+    std::cout << nb_frames << '\r' << std::flush;  // dump progress
     ++nb_frames;
   next_packet:
     av_free_packet(&pkt);
@@ -161,3 +168,6 @@ int ff2cv(const char *video_file, int modulo_frame_count,
   avformat_close_input(&inctx);
   return 0;
 }
+
+}  // namespace ffmpeg
+}  // namespace video_detect

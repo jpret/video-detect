@@ -51,7 +51,7 @@ set_target_properties( ${PROJECT_NAME}
 if (CHECK_STYLES) 
     add_custom_command(
         TARGET ${PROJECT_NAME}
-        PRE_BUILD
+        POST_BUILD
         COMMAND cpplint "--recursive" "./*"
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         COMMENT "Running style checks...")

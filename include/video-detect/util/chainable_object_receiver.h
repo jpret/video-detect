@@ -18,12 +18,13 @@ namespace util {
  */
 template <typename T, typename ReturnType = void>
 class ChainableObjectReceiver : public ObjectReceiver<T, ReturnType> {
-public:
+ public:
   /**
    * Append a ChainableObjectReceiver implementation to the current chain
    */
   virtual void AppendToChain(
-      ChainableObjectReceiver<T, ReturnType> &chainable_object_receiver) {
+      ChainableObjectReceiver<T, ReturnType>
+          &chainable_object_receiver) {  // NOLINT(runtime/references)
     if (next_ == nullptr) {
       next_ = &chainable_object_receiver;
     } else {
@@ -34,7 +35,7 @@ public:
   /**
    * Implement the Accept method to set the default chain behaviour
    */
-  virtual ReturnType Accept(T t) override {
+  virtual ReturnType Accept(T t) {
     if (next_ != nullptr) {
       next_->Accept(t);
     }
@@ -42,11 +43,11 @@ public:
 
   virtual ~ChainableObjectReceiver() = default;
 
-private:
+ private:
   ChainableObjectReceiver<T, ReturnType> *next_{nullptr};
 };
 
-} // namespace util
-} // namespace video_detect
+}  // namespace util
+}  // namespace video_detect
 
-#endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_CHAINABLE_OBJECT_RECEIVER_H_
+#endif  // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_UTIL_CHAINABLE_OBJECT_RECEIVER_H_

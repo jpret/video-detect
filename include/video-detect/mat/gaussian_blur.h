@@ -2,23 +2,23 @@
  * MIT License Copyright (c) 2021 CppEngineer
  */
 
-#ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_GAUSSIAN_BLUR_H_
-#define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_GAUSSIAN_BLUR_H_
+#ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_GAUSSIAN_BLUR_H_
+#define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_GAUSSIAN_BLUR_H_
 
 #include <vector>
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/highgui.hpp>
 
-#include "video-detect/img/conv.h"
-#include "video-detect/img/kernel.h"
+#include "video-detect/mat/conv.h"
+#include "video-detect/mat/kernel.h"
 #include "video-detect/util/chainable_object_receiver.h"
 
 namespace video_detect {
-namespace img {
+namespace mat {
 
 class GaussianBlur : public util::ChainableObjectReceiver<const cv::Mat &> {
-public:
+ public:
   /**
    * The GaussianBlur constructor sets the flag to export images of the
    * conversion or not
@@ -26,8 +26,7 @@ public:
   explicit GaussianBlur(bool export_images)
       : export_images_(export_images), conversion_counter_(0) {}
 
-  void Accept(const cv::Mat & img) override {
-
+  void Accept(const cv::Mat &img) override {
     // Create a new Mat class from the blurred image
     cv::Mat img_blur = ConvCvMatKernel(img, kernel_3x3_);
 
@@ -48,7 +47,7 @@ public:
     ChainableObjectReceiver::Accept(img_blur);
   }
 
-private:
+ private:
   int conversion_counter_;
   const bool export_images_;
 
@@ -58,7 +57,7 @@ private:
                                    {1.f / 24, 2.f / 24, 1.f / 24}}};
 };
 
-} // namespace img
-} // namespace video_detect
+}  // namespace mat
+}  // namespace video_detect
 
-#endif // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_IMG_GRAYSCALE_ADAPTOR_H_
+#endif  // VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_GAUSSIAN_BLUR_H_
