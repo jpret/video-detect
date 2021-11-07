@@ -38,6 +38,6 @@ add_test(${PROJECT_NAME}_test ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_test)
 add_custom_command(
     TARGET ${PROJECT_NAME}_test
     POST_BUILD
-    COMMAND cpplint "--recursive" "./*"
+    COMMAND cpplint --root=.. --linelength=80 --filter=-build/c++11 --exclude=build/* --recursive ./*
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
     COMMENT "Running style checks...")

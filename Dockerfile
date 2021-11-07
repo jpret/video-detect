@@ -30,11 +30,11 @@ WORKDIR /cppeng/video-detect
 COPY . .
 
 # Build project and run tests
-WORKDIR /cppeng/video-detect/build
-RUN cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release ..
-RUN make
-RUN make test
-RUN make install
+WORKDIR /cppeng/video-detect/
+RUN cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -S . -B build
+RUN cmake --build build
+RUN cmake --build build -t test
+RUN cmake --build build -t install
 
 # Run
 CMD video-detect
