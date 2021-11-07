@@ -50,30 +50,28 @@ set_target_properties( ${PROJECT_NAME}
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
-# Create a library
-add_library(${PROJECT_NAME}_lib SHARED ${sources})
+# Install rules for the executable
+install(TARGETS ${PROJECT_NAME})
 
-# Add include directories
-target_include_directories(${PROJECT_NAME}_lib 
-                           PRIVATE ${include_directories}
-                           PUBLIC ${PROJECT_SOURCE_DIR}/include)
+# If building tests, create a lib to link to
+if (BUILD_TESTING) 
 
-# Link libraries
-target_link_libraries(${PROJECT_NAME}_lib 
-                      PRIVATE ${link_libraries})
+    # Create a library
+    add_library(${PROJECT_NAME}_lib SHARED ${sources})
 
-# Set output directories
-set_target_properties( ${PROJECT_NAME}_lib
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-)
+    # Add include directories
+    target_include_directories(${PROJECT_NAME}_lib 
+                            PRIVATE ${include_directories}
+                            PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-# Only check styles if instructed to do so
-if (CHECK_STYLES) 
-    add_custom_command(
-        TARGET ${PROJECT_NAME}
-        POST_BUILD
-        COMMAND cpplint "--recursive" "./*"
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        COMMENT "Running style checks...")
+    # Link libraries
+    target_link_libraries(${PROJECT_NAME}_lib 
+                        PRIVATE ${link_libraries})
+
+    # Set output directories
+    set_target_properties( ${PROJECT_NAME}_lib
+        PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    )
+
 endif()

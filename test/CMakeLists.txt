@@ -31,5 +31,13 @@ target_link_libraries(${PROJECT_NAME}_test PRIVATE
                     ${OpenCV_LIBS}
                     ${PROJECT_NAME}_lib)
 
-# add test to enable use of make test
+# add test to enable use of make test for unit tests
 add_test(${PROJECT_NAME}_test ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_test)
+
+# Only check styles if instructed to do so
+add_custom_command(
+    TARGET ${PROJECT_NAME}_test
+    POST_BUILD
+    COMMAND cpplint "--recursive" "./*"
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMENT "Running style checks...")
