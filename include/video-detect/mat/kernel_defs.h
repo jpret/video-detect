@@ -10,15 +10,23 @@
 namespace video_detect {
 namespace mat {
 
-static const Mat2D<float> kKernelGaussian3x3{{{1.f / 24, 2.f / 24, 1.f / 24},
-                                              {2.f / 24, 4.f / 24, 2.f / 24},
-                                              {1.f / 24, 2.f / 24, 1.f / 24}}};
+constexpr int k3x3 = 24;
+static const Mat2D<float> kKernelGaussian3x3{
+    {{1.f / k3x3, 2.f / k3x3, 1.f / k3x3},
+     {2.f / k3x3, 4.f / k3x3, 2.f / k3x3},
+     {1.f / k3x3, 2.f / k3x3, 1.f / k3x3}}};
 
-static const Mat2D<int8_t> kKernelHLine3x3{
-    {{-1, -1, -1}, {2, 2, 2}, {-1, -1, -1}}};
+constexpr int k5x5 = 273;
+static const Mat2D<float> kKernelGaussian5x5{
+    {{1.f / k5x5, 4.f / k5x5, 7.f / k5x5, 4.f / k5x5, 1.f / k5x5},
+     {4.f / k5x5, 16.f / k5x5, 26.f / k5x5, 16.f / k5x5, 4.f / k5x5},
+     {7.f / k5x5, 26.f / k5x5, 41.f / k5x5, 26.f / k5x5, 7.f / k5x5},
+     {4.f / k5x5, 16.f / k5x5, 26.f / k5x5, 16.f / k5x5, 4.f / k5x5},
+     {1.f / k5x5, 4.f / k5x5, 7.f / k5x5, 4.f / k5x5, 1.f / k5x5}}};
 
-static const Mat2D<int8_t> kKernelVLine3x3{
-    {{-1, 2, -1}, {-1, 2, -1}, {-1, 2, -1}}};
+static const Mat2D<int8_t> kSobelX3x3{{{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}}};
+
+static const Mat2D<int8_t> kSobelY3x3{{{1, 2, 1}, {0, 0, 0}, {-1, -2, -1}}};
 
 }  // namespace mat
 }  // namespace video_detect

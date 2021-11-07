@@ -6,6 +6,7 @@
 
 #include <utility>
 
+#include "video-detect/vline.h"
 #include "video-detect/mat/filter.h"
 #include "video-detect/mat/kernel_defs.h"
 #include "video-detect/opencv2/export_u8_mat_2d.h"
@@ -17,7 +18,7 @@ HVEdgeDetector::HVEdgeDetector(bool export_images,
                                const std::string& export_path) {
   // Setup the conversion chain strategy
 
-  // 1. A Gaussian filter to create a blur
+  // 1. A Gaussian filter to create a blur -> requires grey image input
   auto gaussian_filter =
       std::make_unique<mat::Filter<uint8_t, float>>(mat::kKernelGaussian3x3);
 
@@ -34,23 +35,26 @@ HVEdgeDetector::HVEdgeDetector(bool export_images,
     gaussian_filter->AppendToChain(*gaussian_filter_output_export);
   }
 
-  // 2. Horizontal + Vertical line detection filter
-  auto hline_filter =
-      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kKernelHLine3x3);
-  auto vline_filter =
-      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kKernelVLine3x3);
+  // 2. Threshold filter
+  // TODO(jangabriel): add this
 
-  // 3. Split the chain, thus the H and V filters get a copy from the gaussian
+  // 3. Horizontal + Vertical Edge detection filter
+  auto hline_filter =
+      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kSobelX3x3);
+  auto vline_filter =
+      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kSobelY3x3);
+
+  // 4. Split the chain, thus the H and V filters get a copy from the gaussian
   // filter
   auto chain_split = std::make_unique<
       util::ChainableObjectReceiverSplit<const mat::Mat2D<uint8_t>&>>(
       *vline_filter);
 
-  // 3.1 The VLine filter will split off of the main chain via the chain
+  // 4.1 The VLine filter will split off of the main chain via the chain
   // splitter
   gaussian_filter->AppendToChain(*chain_split);
 
-  // 3.2 The HLine will continue on the current chain
+  // 4.2 The HLine will continue on the current chain
   gaussian_filter->AppendToChain(*hline_filter);
 
   // If the export images flag is set then export the hline + vline output
@@ -67,6 +71,11 @@ HVEdgeDetector::HVEdgeDetector(bool export_images,
     gaussian_filter->AppendToChain(*h_line_filter_output_export);
     vline_filter->AppendToChain(*v_line_filter_output_export);
   }
+
+  // Add the vline detector
+  std::unique_ptr<VLine> vline_detector = std::make_unique<VLine>();
+    vline_filter->AppendToChain(*vline_detector);
+    gaussian_filter->AppendToChain(*vline_detector);
 
   // 5. Combine the chain
   // TODO(jangabriel): CONTINUE HERE!
@@ -85,6 +94,7 @@ HVEdgeDetector::HVEdgeDetector(bool export_images,
   handler_chain.push_back(std::move(hline_filter));
   handler_chain.push_back(std::move(vline_filter));
   handler_chain.push_back(std::move(chain_split));
+  handler_chain.push_back(std::move(vline_detector));
 }
 
 void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& img) {
