@@ -5,12 +5,12 @@
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_HV_EDGE_DETECTOR_H_
 
-#include <memory>
+#include <map>
 #include <string>
-#include <vector>
 
 #include "video-detect/mat/mat_2d.h"
 #include "video-detect/util/object_receiver.h"
+
 
 namespace video_detect {
 
@@ -28,6 +28,8 @@ class HVEdgeDetector
  private:
   const bool export_images_;
   const std::string export_path_;
+  std::map<int, int> rows_;
+  std::map<int, int> cols_;
 
   typedef const mat::Mat2D<uint8_t> ConstMatU8;
   typedef mat::Mat2D<uint8_t> MatU8;
@@ -41,6 +43,10 @@ class HVEdgeDetector
   MatU8 ApplyContourFinder(ConstMatU8 &mat);  // NOLINT(runtime/references)
   MatU8 ApplyLinearFeatureFinder(
       ConstMatU8 &mat);  // NOLINT(runtime/references)
+  std::map<int, int> ApplyCornerFinder(
+      ConstMatU8 &mat);  // NOLINT(runtime/references)
+
+  void UpdateFrameSizes(std::map<int, int> corners, int width, int height);
 };
 
 }  // namespace video_detect

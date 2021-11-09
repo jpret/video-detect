@@ -4,6 +4,7 @@
 
 #include "video-detect/hv_edge_detector.h"
 
+#include <set>
 #include <utility>
 
 #include "video-detect/mat/filter.h"
@@ -21,9 +22,6 @@ HVEdgeDetector::HVEdgeDetector(bool export_images,
     : export_images_(export_images), export_path_(export_path) {}
 
 void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& mat) {
-  // Temporary: use the OpenCV way
-  // opencv2::Detect(export_path_, opencv2::ConvertMat2DToCvMat(mat));
-
   // 1. Add a gaussian filter to smooth image
   MatU8 result = ApplyGaussianFilter(mat);
 
@@ -39,12 +37,28 @@ void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& mat) {
   // 5. Approximate contours with linear features
   result = ApplyLinearFeatureFinder(result);
 
-  // 6. Find rectangles with "frame-like" attributes
-  // TODO(jangabriel): search for tacngents and add it to the resultant image
-  // The resultant image can then be summed to a total image
+  // 6. Find corners
+  auto corners = ApplyCornerFinder(result);
 
-  // 7. Check resultant image for rectangles
-  
+  // 7. Update the frame size based on the corners and the frame size of the
+  // image
+  UpdateFrameSizes(corners, result.GetRowCount(), result.GetColCount());
+
+  // 8. Count the unique frame sizes
+
+  // 8. Choose the frame size
+  // Print estimated sizes
+  std::cout << "Rows: ";
+  for (auto& row : rows_) {
+    std::cout << row.first << "[" << row.second << "] " << std::flush;
+  }
+  std::cout << std::endl;
+
+  std::cout << "Cols: ";
+  for (auto& col : cols_) {
+    std::cout << col.first << "[" << col.second << "] " << std::flush;
+  }
+  std::cout << std::endl;
 }
 
 void HVEdgeDetector::ExportImage(ConstMatU8& mat,
@@ -64,13 +78,13 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyGaussianFilter(ConstMatU8& mat) {
   mat::Filter<uint8_t, float> filter(mat::kKernelGaussian3x3);
 
   // Export input image
-  // ExportImage(mat, "GaussianFilterInput");
+  ExportImage(mat, "GaussianFilterInput");
 
   // Filter image
   MatU8 result = filter.Apply(mat);
 
   // Export output image
-  // ExportImage(result, "GaussianFilterOutput");
+  ExportImage(result, "GaussianFilterOutput");
 
   // Return result
   return result;
@@ -81,13 +95,13 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyThresholdFilter(ConstMatU8& mat) {
   mat::Threshold<uint8_t> threshold(100, 200, 0, 255);
 
   // Export input image
-  // ExportImage(mat, "ThresholdFilterInput");
+  ExportImage(mat, "ThresholdFilterInput");
 
   // Filter image
   MatU8 result = threshold.Apply(mat);
 
   // Export output image
-  // ExportImage(result, "ThresholdFilterOutput");
+  ExportImage(result, "ThresholdFilterOutput");
 
   // Return result
   return result;
@@ -100,7 +114,7 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
   mat::Filter<uint8_t, int8_t> y_filter(mat::kSobelY3x3);
 
   // Export input image
-  // ExportImage(mat, "EdgeDetectionFilterInput");
+  ExportImage(mat, "EdgeDetectionFilterInput");
 
   // Filter images
   auto x_mat = x_filter.Apply(mat).CastTo<float>();
@@ -112,9 +126,9 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
 
   // Export output images - checking with int to prevent casting
   if (export_images_) {
-    // ExportImage(x_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_X");
-    // ExportImage(y_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_Y");
-    // ExportImage(result_mag, "EdgeDetectionFilterOutputMag");
+    ExportImage(x_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_X");
+    ExportImage(y_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_Y");
+    ExportImage(result_mag, "EdgeDetectionFilterOutputMag");
   }
 
   // Calculate the magnitude image
@@ -180,6 +194,89 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyLinearFeatureFinder(
   auto result = result_v + result_h;
   ExportImage(result, "LinearFeatureFinderOutput");
   return result;
+}
+
+std::map<int, int> HVEdgeDetector::ApplyCornerFinder(ConstMatU8& mat) {
+  MatU8 result(mat.GetRowCount(), mat.GetColCount());
+  std::map<int, int> corners;
+
+  static const int kLineLength = 10;
+
+  // Find corners features
+  for (int col = 0; col < mat.GetColCount(); col++) {
+    for (int row = 0; row < mat.GetRowCount(); row++) {
+      // Go through each column to check if we have a corner line
+      // First ensure that we are on a Horizontal line
+      // Check if we are on a horizontal line
+      int line_counter = 0;
+      for (int x = col - kLineLength; x <= col + kLineLength; x++) {
+        if (mat.GetValue(row, x) == 255) {
+          line_counter++;
+        }
+        // TODO(jangabriel): Refactor this
+        if (line_counter >= kLineLength) {
+          break;
+        }
+      }
+
+      if (line_counter >= kLineLength) {
+        // Check if we are on a vertical line crossing
+        line_counter = 0;
+        for (int y = row - kLineLength; y <= row + kLineLength; y++) {
+          if (mat.GetValue(y, col) == 255) {
+            line_counter++;
+          }
+          // TODO(jangabriel): Refactor this
+          if (line_counter >= kLineLength) {
+            result.SetValue(row, col, 255);
+            // Add to corners
+            corners.insert(std::make_pair(row, col));
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // Export output image
+  ExportImage(result, "CornerFinderOutput");
+
+  // Return corners
+  return corners;
+}
+
+void HVEdgeDetector::UpdateFrameSizes(std::map<int, int> corners, int rows,
+                                      int cols) {
+  // We know that the frames should fit into the width x height
+  // We can thus check to see if the corners fits into window
+  for (const auto& corner : corners) {
+    float result_row = (rows * 1.f);
+    if (corner.first > 0) {
+      result_row /= (corner.first * 1.f);
+      result_row = truncf(result_row * 10) / 10;
+      if (static_cast<int>(result_row * 10) % 10 == 0) {
+        auto it = rows_.find(static_cast<int>(result_row));
+        if (it != rows_.end()) {
+          it->second += static_cast<int>(result_row);
+        } else {
+          rows_[static_cast<int>(result_row)] = 1;
+        }
+      }
+    }
+    float result_col = (cols * 1.f);
+    if (corner.second > 0) {
+      result_col /= (corner.second * 1.f);
+      result_col = truncf(result_col * 10) / 10;
+      if (static_cast<int>(result_col * 10) % 10 == 0) {
+        auto it = cols_.find(static_cast<int>(result_col));
+        if (it != cols_.end()) {
+          it->second += static_cast<int>(result_col);
+        } else {
+          cols_[static_cast<int>(result_col)] = 1;
+        }
+      }
+    }
+  }
 }
 
 }  // namespace video_detect

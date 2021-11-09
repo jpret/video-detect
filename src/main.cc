@@ -17,7 +17,7 @@ int main(int argc, const char *argv[]) {
 
   // Create a Horizontal Vertical Edge Detector
   video_detect::HVEdgeDetector hv_edge_detector(
-      true, "/workspaces/video-detect/build/test");
+      false, "/workspaces/video-detect/build/test");
 
   // Create a matrix bridge between the external code and our program
   video_detect::MatBridge mat_bridge(worker, hv_edge_detector);
