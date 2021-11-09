@@ -40,6 +40,11 @@ void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& mat) {
   result = ApplyLinearFeatureFinder(result);
 
   // 6. Find rectangles with "frame-like" attributes
+  // TODO(jangabriel): search for tacngents and add it to the resultant image
+  // The resultant image can then be summed to a total image
+
+  // 7. Check resultant image for rectangles
+  
 }
 
 void HVEdgeDetector::ExportImage(ConstMatU8& mat,
@@ -59,13 +64,13 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyGaussianFilter(ConstMatU8& mat) {
   mat::Filter<uint8_t, float> filter(mat::kKernelGaussian3x3);
 
   // Export input image
-  //ExportImage(mat, "GaussianFilterInput");
+  // ExportImage(mat, "GaussianFilterInput");
 
   // Filter image
   MatU8 result = filter.Apply(mat);
 
   // Export output image
-  //ExportImage(result, "GaussianFilterOutput");
+  // ExportImage(result, "GaussianFilterOutput");
 
   // Return result
   return result;
@@ -76,13 +81,13 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyThresholdFilter(ConstMatU8& mat) {
   mat::Threshold<uint8_t> threshold(100, 200, 0, 255);
 
   // Export input image
-  //ExportImage(mat, "ThresholdFilterInput");
+  // ExportImage(mat, "ThresholdFilterInput");
 
   // Filter image
   MatU8 result = threshold.Apply(mat);
 
   // Export output image
-  //ExportImage(result, "ThresholdFilterOutput");
+  // ExportImage(result, "ThresholdFilterOutput");
 
   // Return result
   return result;
@@ -95,7 +100,7 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
   mat::Filter<uint8_t, int8_t> y_filter(mat::kSobelY3x3);
 
   // Export input image
-  //ExportImage(mat, "EdgeDetectionFilterInput");
+  // ExportImage(mat, "EdgeDetectionFilterInput");
 
   // Filter images
   auto x_mat = x_filter.Apply(mat).CastTo<float>();
@@ -107,9 +112,9 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
 
   // Export output images - checking with int to prevent casting
   if (export_images_) {
-    //ExportImage(x_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_X");
-    //ExportImage(y_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_Y");
-    //ExportImage(result_mag, "EdgeDetectionFilterOutputMag");
+    // ExportImage(x_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_X");
+    // ExportImage(y_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_Y");
+    // ExportImage(result_mag, "EdgeDetectionFilterOutputMag");
   }
 
   // Calculate the magnitude image
@@ -125,7 +130,6 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyContourFinder(ConstMatU8& mat) {
 
 HVEdgeDetector::MatU8 HVEdgeDetector::ApplyLinearFeatureFinder(
     ConstMatU8& mat) {
-
   static const int kLineLengthH = 20;
   static const int kLineLengthV = 15;
 
@@ -155,7 +159,7 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyLinearFeatureFinder(
 
   // Find linear features -> VERTICAL
   for (int col = 0; col < mat.GetColCount(); col++) {
-  for (int row = 0; row < mat.GetRowCount(); row++) {
+    for (int row = 0; row < mat.GetRowCount(); row++) {
       // Go through each column to check if we have a linear line
       if (mat.GetValue(row, col) == 255) {
         ++line_counter;
