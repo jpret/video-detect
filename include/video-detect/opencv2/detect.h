@@ -6,11 +6,10 @@
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_OPENCV2_DETECT_H_
 
 #include <iostream>
-#include <string>
-
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <string>
 
 namespace video_detect {
 namespace opencv2 {
@@ -62,7 +61,18 @@ static cv::Mat DetectEdgesMatrix(const cv::Mat &mat) {
   return result;
 }
 
-static cv::Mat FindContoursMatrix(const cv::Mat &mat) { return mat; }
+static cv::Mat FindContoursMatrix(const cv::Mat &mat) {
+  std::vector<std::vector<cv::Point>> contours;
+  std::vector<cv::Vec4i> hierarchy;
+  cv::findContours(mat, contours, hierarchy, cv::RETR_TREE,
+                   cv::CHAIN_APPROX_NONE);
+
+  cv::Mat mat_contour(mat.rows, mat.cols, CV_8UC1, cv::Scalar(0));
+  drawContours(mat_contour, contours, -1, cv::Scalar(255), 1);
+  SaveImage("findContours", "/workspaces/video-detect/build/test",
+            mat_contour);
+  return mat_contour;
+}
 
 static cv::Mat ApproxContoursMatrix(const cv::Mat &mat) { return mat; }
 

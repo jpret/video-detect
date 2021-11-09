@@ -11,7 +11,7 @@
 namespace video_detect {
 namespace mat {
 
-TEST(ImgTests, ConvTestConvMat2DMatKernel) {
+TEST(MatTests, ConvTestConvMat2DMatKernel) {
   // Create a test matrix
   Mat2D<uint8_t> mat{{{1, 1, 1, 0, 0},
                       {0, 1, 1, 1, 0},

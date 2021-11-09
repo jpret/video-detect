@@ -6,127 +6,141 @@
 
 #include <utility>
 
-#include "video-detect/mat/Threshold.h"
 #include "video-detect/mat/filter.h"
 #include "video-detect/mat/kernel_defs.h"
+#include "video-detect/mat/threshold.h"
 #include "video-detect/opencv2/detect.h"
 #include "video-detect/opencv2/export_u8_mat_2d.h"
 #include "video-detect/opencv2/util.h"
-#include "video-detect/util/chainable_object_receiver_split.h"
-#include "video-detect/vline.h"
 
 namespace video_detect {
 
 HVEdgeDetector::HVEdgeDetector(bool export_images,
                                const std::string& export_path)
-    : export_images_(export_images), export_path_(export_path) {
-  // Setup the conversion chain strategy start
-  auto chain_start = std::make_unique<Chain>();
+    : export_images_(export_images), export_path_(export_path) {}
+
+void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& mat) {
+  // Temporary: use the OpenCV way
+  // opencv2::Detect(export_path_, opencv2::ConvertMat2DToCvMat(mat));
 
   // 1. Add a gaussian filter to smooth image
-  AddGaussianFilterToChain(*chain_start);
+  MatU8 result = ApplyGaussianFilter(mat);
 
   // 2. Add a threshold filter to remove out of bounds values
-  AddThresholdFilterToChain(*chain_start);
+  result = ApplyThresholdFilter(result);
 
   // 3. Add Sobel edge detection filter
-  AddEdgeDetectionFilterToChain(*chain_start);
+  result = ApplyEdgeDetectionFilter(result);
 
   // 4. Add Contour finder
-  //
+  result = ApplyContourFinder(result);
 
   // 5. Approximate contours with linear features
   //
 
   // 6. Find rectangles with "frame-like" attributes
-
-  // Finally, push the front of the chain to the chain handler
-  handler_chain.push_back(std::move(chain_start));
 }
 
-void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& img) {
-  // Temporary: use the OpenCV way
-  opencv2::Detect(export_path_, opencv2::ConvertMat2DToCvMat(img));
-
-  if (!handler_chain.empty()) {
-    // During the time building the chain, the chain start
-    // was added last
-    handler_chain.back()->Accept(img);
-  }
-}
-
-void HVEdgeDetector::AddExportImage(Chain& c, const std::string& name_base) {
+void HVEdgeDetector::ExportImage(ConstMatU8& mat,
+                                 const std::string& name_base) {
   // If the export images flag is set, export the image
   if (export_images_) {
     // Create the image exporter
-    std::unique_ptr<opencv2::ExportU8Mat2D> exporter;
-    exporter =
-        std::make_unique<opencv2::ExportU8Mat2D>(name_base, export_path_);
+    opencv2::ExportU8Mat2D exporter(name_base, export_path_);
 
-    // Add exporter to the chain
-    c.AppendToChain(*exporter);
-
-    // Add to chain handler owner
-    handler_chain.push_back(std::move(exporter));
+    // Export the image
+    exporter.Accept(mat);
   }
 }
 
-void HVEdgeDetector::AddGaussianFilterToChain(Chain& c) {
+HVEdgeDetector::MatU8 HVEdgeDetector::ApplyGaussianFilter(ConstMatU8& mat) {
   // Create filter
-  auto filter =
-      std::make_unique<mat::Filter<uint8_t, float>>(mat::kKernelGaussian3x3);
+  mat::Filter<uint8_t, float> filter(mat::kKernelGaussian3x3);
 
-  // Add filter to chain + exporters (export_image check done by
-  // AddExportImage())
-  AddExportImage(c, "GaussianFilterInput");
-  c.AppendToChain(*filter);
-  AddExportImage(c, "GaussianFilterOutput");
+  // Export input image
+  ExportImage(mat, "GaussianFilterInput");
 
-  // Add to chain handler owner
-  handler_chain.push_back(std::move(filter));
+  // Filter image
+  MatU8 result = filter.Apply(mat);
+
+  // Export output image
+  ExportImage(result, "GaussianFilterOutput");
+
+  // Return result
+  return result;
 }
 
-void HVEdgeDetector::AddThresholdFilterToChain(Chain& c) {
+HVEdgeDetector::MatU8 HVEdgeDetector::ApplyThresholdFilter(ConstMatU8& mat) {
   // Create filter
-  auto filter = std::make_unique<mat::Threshold<uint8_t>>(100, 200);
+  mat::Threshold<uint8_t> threshold(100, 200, 0, 255);
 
-  // Add filter to chain + exporters (export_image check done by
-  // AddExportImage())
-  AddExportImage(c, "ThresholdFilterInput");
-  c.AppendToChain(*filter);
-  AddExportImage(c, "ThresholdFilterOutput");
+  // Export input image
+  ExportImage(mat, "ThresholdFilterInput");
 
-  // Add to chain handler owner
-  handler_chain.push_back(std::move(filter));
+  // Filter image
+  MatU8 result = threshold.Apply(mat);
+
+  // Export output image
+  ExportImage(result, "ThresholdFilterOutput");
+
+  // Return result
+  return result;
 }
 
-void HVEdgeDetector::AddEdgeDetectionFilterToChain(Chain& c) {
+HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
+    ConstMatU8& mat) {
   // Create filters
-  auto x_filter =
-      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kSobelX3x3);
-  auto y_filter =
-      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kSobelY3x3);
+  mat::Filter<uint8_t, int8_t> x_filter(mat::kSobelX3x3);
+  mat::Filter<uint8_t, int8_t> y_filter(mat::kSobelY3x3);
 
-  // Split the chain, thus the H and V filters get a copy
-  auto chain_split = std::make_unique<
-      util::ChainableObjectReceiverSplit<const mat::Mat2D<uint8_t>&>>(
-      *y_filter);
+  // Export input image
+  ExportImage(mat, "EdgeDetectionFilterInput");
 
-  // Add input image export
-  AddExportImage(c, "EdgeDetectionFilterInput");
+  // Filter images
+  auto x_mat = x_filter.Apply(mat).CastTo<float>();
+  auto y_mat = y_filter.Apply(mat).CastTo<float>();
 
-  // The chain splitter will forward it to the y_filter
-  c.AppendToChain(*chain_split);
-  c.AppendToChain(*x_filter);
+  // Calculate Sobel Magnitude => mag = sqrt(x_mat² + y_mat²);
+  auto result_mag =
+      ((x_mat * x_mat) + (y_mat * y_mat)).Sqrt().CastTo<uint8_t>();
 
-  // Add output image export
-  AddExportImage(c, "EdgeDetectionFilterOutput_X");
-  AddExportImage(*y_filter, "EdgeDetectionFilterOutput_Y");
+  // Export output images - checking with int to prevent casting
+  if (export_images_) {
+    ExportImage(x_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_X");
+    ExportImage(y_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_Y");
+    ExportImage(result_mag, "EdgeDetectionFilterOutputMag");
+  }
 
-  // Add to chain handler owner
-  handler_chain.push_back(std::move(x_filter));
-  handler_chain.push_back(std::move(chain_split));
-  handler_chain.push_back(std::move(y_filter));
+  // Calculate the magnitude image
+  return result_mag.CastTo<uint8_t>();
+}
+
+HVEdgeDetector::MatU8 HVEdgeDetector::ApplyContourFinder(ConstMatU8& mat) {
+  //MatU8 result(mat.GetRowCount(), mat.GetColCount());
+
+  opencv2::FindContoursMatrix(opencv2::ConvertMat2DToCvMat(mat));
+
+  // const int win_w = 3;
+  // const int win_h = 10;
+  // int sum_prev = 0;
+
+  // for (int row = 0; row < mat.GetRowCount(); row += win_h) {
+  //   for (int col = 0; col < mat.GetColCount(); col += win_w) {
+  //     int sum_next = 0;
+  //     for (int scan_x = 0; scan_x < win_w; scan_x++) {
+  //       for (int scan_y = 0; scan_y < win_h; scan_y++) {
+  //         sum_next += mat.GetValue(scan_x + col, scan_y + row);
+  //       }
+  //     }
+  //     if (sum_next > sum_prev + 10 || sum_next < sum_prev - 10) {
+  //       result.SetValue(row, col, 255);
+  //       sum_prev = sum_next;
+  //     }
+  //   }
+  // }
+
+  //ExportImage(result, "ContourFinder");
+  return mat;
 }
 
 }  // namespace video_detect

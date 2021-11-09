@@ -9,7 +9,6 @@
 
 #include "video-detect/mat/conv.h"
 #include "video-detect/mat/mat_2d.h"
-#include "video-detect/util/chainable_object_receiver.h"
 
 namespace video_detect {
 namespace mat {
@@ -23,7 +22,7 @@ namespace mat {
  * @tparam KernelType the type of Kernel (defaulted to the same as the matrix)
  */
 template <typename MatType, typename KernelType = MatType>
-class Filter : public util::ChainableObjectReceiver<const Mat2D<MatType> &> {
+class Filter {
  public:
   /**
    * @brief Construct a new Filter object
@@ -32,17 +31,6 @@ class Filter : public util::ChainableObjectReceiver<const Mat2D<MatType> &> {
    *               filtering
    */
   explicit Filter(const mat::Mat2D<KernelType> &kernel) : kernel_(kernel) {}
-
-  /**
-   * @brief This version of the filter is used in combination with a chainable
-   * object receiver. This means you can setup a filter chain of responsibility.
-   *
-   * @param mat the target 2D matrix to filter
-   */
-  void Accept(const Mat2D<MatType> &mat) override {
-    // Continue the chain with the filtered image
-    util::ChainableObjectReceiver<const Mat2D<MatType> &>::Accept(Apply(mat));
-  }
 
   /**
    * @brief Apply the filter as setup in the constructor

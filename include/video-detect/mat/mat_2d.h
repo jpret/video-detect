@@ -5,12 +5,15 @@
 #ifndef VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_MAT_2D_H_
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_MAT_MAT_2D_H_
 
+#include <cmath>
 #include <initializer_list>
+#include <ostream>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "video-detect/mat/vector_2d.h"
+
 
 namespace video_detect {
 namespace mat {
@@ -128,6 +131,160 @@ class Mat2D {
       }
     }
     return result;
+  }
+
+  /**
+   * @brief Calculate the multiplication of the matrices at each index
+   *
+   * @param other the other matrix to multiply with this one
+   * @return Mat2D<T> the resultant matrix with same size as this matrix
+   */
+  Mat2D<T> operator*(const Mat2D<T> &other) const {
+    Mat2D<T> result(GetRowCount(), GetColCount());
+    for (int row = 0; row < GetRowCount(); row++) {
+      for (int col = 0; col < GetColCount(); col++) {
+        // Multiply the contents at the position
+        result.SetValue(row, col,
+                        GetValue(row, col) * other.GetValue(row, col));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @brief Calculate the division of the matrices at each index
+   *
+   * @param other the other matrix to divide this one by
+   * @return Mat2D<T> the resultant matrix with same size as this matrix
+   */
+  Mat2D<T> operator/(const Mat2D<T> &other) const {
+    Mat2D<T> result(GetRowCount(), GetColCount());
+    for (int row = 0; row < GetRowCount(); row++) {
+      for (int col = 0; col < GetColCount(); col++) {
+        T value = other.GetValue(row, col);
+        // Do not divide by zero
+        if (value != 0) {
+          result.SetValue(row, col, GetValue(row, col) / value);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @brief Calculate the sqrt of the matrix
+   *
+   * @return Mat2D<T> the resultant matrix
+   */
+  Mat2D<T> Sqrt() const {
+    Mat2D<T> result(GetRowCount(), GetColCount());
+    for (int row = 0; row < GetRowCount(); row++) {
+      for (int col = 0; col < GetColCount(); col++) {
+        // sqrt() the contents at the position
+        T value = GetValue(row, col);
+        if (value >= 0) {
+          result.SetValue(row, col, sqrt(value));
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @brief Calculate the atan2(y/x) value of the matrix at each index
+   *
+   * @param other the other matrix as the y-parameter for atan2(y,x) i.e.
+   * arctan2(y/x)
+   * @return Mat2D<T> the resultant matrix
+   */
+  Mat2D<T> Atan2(const Mat2D<T> &other) const {
+    Mat2D<T> result(GetRowCount(), GetColCount());
+    for (int row = 0; row < GetRowCount(); row++) {
+      for (int col = 0; col < GetColCount(); col++) {
+        // atan2(y,x) the contents at the position
+        T x_value = GetValue(row, col);
+        T y_value = other.GetValue(row, col);
+        if (x_value != 0 || y_value != 0) {
+          result.SetValue(row, col, static_cast<T>(atan2(y_value, x_value)));
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @brief Convert radians to degrees
+   *
+   * @return Mat2D<T> the resultant matrix
+   */
+  Mat2D<T> ToDegrees() const {
+    Mat2D<T> result(GetRowCount(), GetColCount());
+    for (int row = 0; row < GetRowCount(); row++) {
+      for (int col = 0; col < GetColCount(); col++) {
+        // Convert to degrees
+        T value =
+            static_cast<T>((GetValue(row, col) * 1.f) / (2 * M_PI) * (360));
+        // Rotate into range [0;360]
+        while (value < 0 || value > 360) {
+          if (value < 0) {
+            value += 360;
+          } else if (value > 360) {
+            value -= 360;
+          }
+        }
+        result.SetValue(row, col, value);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @brief Normalize a matrix at each position
+   *
+   * @param max     the current expected maximum value
+   * @param new_max the new maximum value to normalize to
+   * @return Mat2D<T> the resultant matrix
+   */
+  Mat2D<T> Normalize(T max, T new_max) const {
+    Mat2D<T> result(GetRowCount(), GetColCount());
+    for (int row = 0; row < GetRowCount(); row++) {
+      for (int col = 0; col < GetColCount(); col++) {
+        // Normalize the contents at the position
+        T value = GetValue(row, col);
+        T new_value =
+            static_cast<T>(((value * 1.f) / (max * 1.f)) * (new_max * 1.f));
+        result.SetValue(row, col, new_value);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * @brief Change the underlying type to a new Type
+   *
+   * @return Mat2D<T> the resultant matrix with same size as this matrix, but
+   * with different type
+   */
+  template <typename NewType>
+  Mat2D<NewType> CastTo() const {
+    Mat2D<NewType> result(GetRowCount(), GetColCount());
+    for (int row = 0; row < GetRowCount(); row++) {
+      for (int col = 0; col < GetColCount(); col++) {
+        // Cast the contents at the position
+        result.SetValue(row, col, static_cast<NewType>(GetValue(row, col)));
+      }
+    }
+    return result;
+  }
+
+  friend std::ostream &operator<<(std::ostream &os, const Mat2D<T>& mat) {
+    for (const auto &row : mat.matrix_) {
+      for (const auto &col : row) {
+        os << std::to_string(col) << " ";
+      }
+      os << "\n";
+    }
+    return os;
   }
 
  private:

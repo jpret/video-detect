@@ -34,10 +34,12 @@ target_link_libraries(${PROJECT_NAME}_test PRIVATE
 # add test to enable use of make test for unit tests
 add_test(${PROJECT_NAME}_test ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_test)
 
-# Only check styles if instructed to do so
-add_custom_command(
-    TARGET ${PROJECT_NAME}_test
-    POST_BUILD
-    COMMAND cpplint --root=.. --linelength=80 --filter=-build/c++11 --exclude=build/* --recursive ./*
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    COMMENT "Running style checks...")
+# Only check styles if option is set
+if (CHECK_STYLES)
+    add_custom_command(
+        TARGET ${PROJECT_NAME}_test
+        POST_BUILD
+        COMMAND cpplint --root=.. --linelength=80 --filter=-build/c++11 --exclude=build/* --recursive ./*
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        COMMENT "Running style checks...")
+endif()

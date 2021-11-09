@@ -23,6 +23,9 @@ if (BUILD_TESTING)
     # Enable testing
     enable_testing()
 
+    # Set options
+    option(CHECK_STYLES "Check styles" ON)
+
     # Add testing subdirectory
     add_subdirectory(test)
 

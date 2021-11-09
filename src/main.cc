@@ -25,7 +25,7 @@ int main(int argc, const char *argv[]) {
   // Read the video and analyse the frames, send the frames to the
   // hv_edge_detector
   video_detect::ffmpeg::ff2cv(
-      "/workspaces/video-detect/test/data/mosaic-sample-big.mp4", 500,
+      "/workspaces/video-detect/test/data/mosaic-sample-big.mp4", 200,
       &mat_bridge);
 
   // Wait for worker to finish its work

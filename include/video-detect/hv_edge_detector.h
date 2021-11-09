@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "video-detect/mat/mat_2d.h"
-#include "video-detect/util/chainable_object_receiver.h"
 #include "video-detect/util/object_receiver.h"
 
 namespace video_detect {
@@ -24,21 +23,22 @@ class HVEdgeDetector
  public:
   explicit HVEdgeDetector(bool export_images, const std::string &export_path);
 
-  void Accept(const mat::Mat2D<uint8_t> &img) override;
+  void Accept(const mat::Mat2D<uint8_t> &mat) override;
 
  private:
-  std::vector<
-      std::unique_ptr<util::ObjectReceiver<const mat::Mat2D<uint8_t> &>>>
-      handler_chain;
   const bool export_images_;
   const std::string export_path_;
 
-  typedef util::ChainableObjectReceiver<const mat::Mat2D<uint8_t> &> Chain;
-  void AddExportImage(
-      Chain &c, const std::string &name_base);   // NOLINT(runtime/references)
-  void AddGaussianFilterToChain(Chain &c);       // NOLINT(runtime/references)
-  void AddThresholdFilterToChain(Chain &c);       // NOLINT(runtime/references)
-  void AddEdgeDetectionFilterToChain(Chain &c);  // NOLINT(runtime/references)
+  typedef const mat::Mat2D<uint8_t> ConstMatU8;
+  typedef mat::Mat2D<uint8_t> MatU8;
+
+  void ExportImage(ConstMatU8 &mat,                // NOLINT(runtime/references)
+                   const std::string &name_base);  // NOLINT(runtime/references)
+  MatU8 ApplyGaussianFilter(ConstMatU8 &mat);      // NOLINT(runtime/references)
+  MatU8 ApplyThresholdFilter(ConstMatU8 &mat);     // NOLINT(runtime/references)
+  MatU8 ApplyEdgeDetectionFilter(
+      ConstMatU8 &mat);                       // NOLINT(runtime/references)
+  MatU8 ApplyContourFinder(ConstMatU8 &mat);  // NOLINT(runtime/references)
 };
 
 }  // namespace video_detect
