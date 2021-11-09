@@ -24,7 +24,7 @@ class Mat2D {
   /**
    * A Mat2D constructor using a 2D brace-enclosed initializer list
    *
-   * @example Mat2D matrix{{0, 1}, {1, 0}};
+   * @example Mat2D<int> matrix{{0, 1}, {1, 0}};
    */
   explicit Mat2D(Vector2D<T> &&matrix) : matrix_(std::move(matrix)) {}
 
@@ -110,6 +110,24 @@ class Mat2D {
     for (auto &row : matrix_) {
       row.resize(cols);
     }
+  }
+
+  /**
+   * @brief Calculate the sum of the matrices at each index
+   *
+   * @param other the other matrix to sum with this one
+   * @return Mat2D<T> the resultant matrix with same size as this matrix
+   */
+  Mat2D<T> operator+(const Mat2D<T> &other) const {
+    Mat2D<T> result(GetRowCount(), GetColCount());
+    for (int row = 0; row < GetRowCount(); row++) {
+      for (int col = 0; col < GetColCount(); col++) {
+        // Sum the contents at the position
+        result.SetValue(row, col,
+                        GetValue(row, col) + other.GetValue(row, col));
+      }
+    }
+    return result;
   }
 
  private:

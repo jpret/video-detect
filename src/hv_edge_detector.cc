@@ -6,101 +6,107 @@
 
 #include <utility>
 
-#include "video-detect/vline.h"
 #include "video-detect/mat/filter.h"
 #include "video-detect/mat/kernel_defs.h"
 #include "video-detect/opencv2/export_u8_mat_2d.h"
 #include "video-detect/util/chainable_object_receiver_split.h"
+#include "video-detect/vline.h"
 
 namespace video_detect {
 
 HVEdgeDetector::HVEdgeDetector(bool export_images,
-                               const std::string& export_path) {
-  // Setup the conversion chain strategy
+                               const std::string& export_path)
+    : export_images_(export_images), export_path_(export_path) {
+  // Setup the conversion chain strategy start
+  auto chain_start = std::make_unique<Chain>();
 
-  // 1. A Gaussian filter to create a blur -> requires grey image input
-  auto gaussian_filter =
-      std::make_unique<mat::Filter<uint8_t, float>>(mat::kKernelGaussian3x3);
+  // 1. Add a gaussian filter to smooth image
+  AddGaussianFilterToChain(*chain_start);
 
-  // If the export images flag is set the first export the input + output image
-  std::unique_ptr<opencv2::ExportU8Mat2D> hv_detector_input_export;
-  std::unique_ptr<opencv2::ExportU8Mat2D> gaussian_filter_output_export;
-  if (export_images) {
-    hv_detector_input_export = std::make_unique<opencv2::ExportU8Mat2D>(
-        "HVEdgeDetectorInput", export_path);
-    gaussian_filter_output_export = std::make_unique<opencv2::ExportU8Mat2D>(
-        "GaussianFilterOutput", export_path);
-    // Add elements to the chain
-    hv_detector_input_export->AppendToChain(*gaussian_filter);
-    gaussian_filter->AppendToChain(*gaussian_filter_output_export);
-  }
+  // 2. Add a threshold filter to remove out of bounds values
+  //
 
-  // 2. Threshold filter
-  // TODO(jangabriel): add this
+  // 3. Add Sobel edge detection filter
+  AddEdgeDetectionFilterToChain(*chain_start);
 
-  // 3. Horizontal + Vertical Edge detection filter
-  auto hline_filter =
-      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kSobelX3x3);
-  auto vline_filter =
-      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kSobelY3x3);
+  // 4. Add Contour finder
+  //
 
-  // 4. Split the chain, thus the H and V filters get a copy from the gaussian
-  // filter
-  auto chain_split = std::make_unique<
-      util::ChainableObjectReceiverSplit<const mat::Mat2D<uint8_t>&>>(
-      *vline_filter);
+  // 5. Approximate contours with linear features
+  //
 
-  // 4.1 The VLine filter will split off of the main chain via the chain
-  // splitter
-  gaussian_filter->AppendToChain(*chain_split);
+  // 6. Find rectangles with "frame-like" attributes
 
-  // 4.2 The HLine will continue on the current chain
-  gaussian_filter->AppendToChain(*hline_filter);
-
-  // If the export images flag is set then export the hline + vline output
-  // images
-  std::unique_ptr<opencv2::ExportU8Mat2D> h_line_filter_output_export;
-  std::unique_ptr<opencv2::ExportU8Mat2D> v_line_filter_output_export;
-  if (export_images) {
-    h_line_filter_output_export = std::make_unique<opencv2::ExportU8Mat2D>(
-        "HLineFilterOutput", export_path);
-    v_line_filter_output_export = std::make_unique<opencv2::ExportU8Mat2D>(
-        "VLineFilterOutput", export_path);
-    // Add elements to the chain - hline on original chain and vline on the
-    // split
-    gaussian_filter->AppendToChain(*h_line_filter_output_export);
-    vline_filter->AppendToChain(*v_line_filter_output_export);
-  }
-
-  // Add the vline detector
-  std::unique_ptr<VLine> vline_detector = std::make_unique<VLine>();
-    vline_filter->AppendToChain(*vline_detector);
-    gaussian_filter->AppendToChain(*vline_detector);
-
-  // 5. Combine the chain
-  // TODO(jangabriel): CONTINUE HERE!
-
-  // If export images enabled push back the image export links to the vector
-  // owning chain the instances
-  if (export_images) {
-    handler_chain.push_back(std::move(hv_detector_input_export));
-    handler_chain.push_back(std::move(gaussian_filter_output_export));
-    handler_chain.push_back(std::move(h_line_filter_output_export));
-    handler_chain.push_back(std::move(v_line_filter_output_export));
-  }
-
-  // Push the rest of the items to the vector owning the chain instances
-  handler_chain.push_back(std::move(gaussian_filter));
-  handler_chain.push_back(std::move(hline_filter));
-  handler_chain.push_back(std::move(vline_filter));
-  handler_chain.push_back(std::move(chain_split));
-  handler_chain.push_back(std::move(vline_detector));
+  // Finally, push the front of the chain to the chain handler
+  handler_chain.push_back(std::move(chain_start));
 }
 
 void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& img) {
   if (!handler_chain.empty()) {
-    handler_chain.front()->Accept(img);
+    // During the time building the chain, the chain start
+    // was added last
+    handler_chain.back()->Accept(img);
   }
+}
+
+void HVEdgeDetector::AddExportImage(Chain& c, const std::string& name_base) {
+  // If the export images flag is set, export the image
+  if (export_images_) {
+    // Create the image exporter
+    std::unique_ptr<opencv2::ExportU8Mat2D> exporter;
+    exporter =
+        std::make_unique<opencv2::ExportU8Mat2D>(name_base, export_path_);
+
+    // Add exporter to the chain
+    c.AppendToChain(*exporter);
+
+    // Add to chain handler owner
+    handler_chain.push_back(std::move(exporter));
+  }
+}
+
+void HVEdgeDetector::AddGaussianFilterToChain(Chain& c) {
+  // Create filter
+  auto filter =
+      std::make_unique<mat::Filter<uint8_t, float>>(mat::kKernelGaussian3x3);
+
+  // Add filter to chain + exporters (export_image check done by
+  // AddExportImage())
+  AddExportImage(c, "GaussianFilterInput");
+  c.AppendToChain(*filter);
+  AddExportImage(c, "GaussianFilterOutput");
+
+  // Add to chain handler owner
+  handler_chain.push_back(std::move(filter));
+}
+
+void HVEdgeDetector::AddEdgeDetectionFilterToChain(Chain& c) {
+  // Create filters
+  auto x_filter =
+      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kSobelX3x3);
+  auto y_filter =
+      std::make_unique<mat::Filter<uint8_t, int8_t>>(mat::kSobelY3x3);
+
+  // Split the chain, thus the H and V filters get a copy
+  auto chain_split = std::make_unique<
+      util::ChainableObjectReceiverSplit<const mat::Mat2D<uint8_t>&>>(
+      *y_filter);
+
+  // Add input image export
+  AddExportImage(c, "EdgeDetectionFilterInput");
+
+  // The chain splitter will forward it to the y_filter
+  c.AppendToChain(*chain_split);
+  c.AppendToChain(*x_filter);
+
+  // Add output image export
+  AddExportImage(c, "EdgeDetectionFilterOutput_X");
+  AddExportImage(*y_filter, "EdgeDetectionFilterOutput_Y");
+
+  // Add to chain handler owner
+  handler_chain.push_back(std::move(x_filter));
+  handler_chain.push_back(std::move(chain_split));
+  handler_chain.push_back(std::move(y_filter));
 }
 
 }  // namespace video_detect
