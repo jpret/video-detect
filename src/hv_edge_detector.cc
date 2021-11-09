@@ -116,7 +116,7 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
 }
 
 HVEdgeDetector::MatU8 HVEdgeDetector::ApplyContourFinder(ConstMatU8& mat) {
-  //MatU8 result(mat.GetRowCount(), mat.GetColCount());
+  // MatU8 result(mat.GetRowCount(), mat.GetColCount());
 
   opencv2::FindContoursMatrix(opencv2::ConvertMat2DToCvMat(mat));
 
@@ -139,7 +139,7 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyContourFinder(ConstMatU8& mat) {
   //   }
   // }
 
-  //ExportImage(result, "ContourFinder");
+  // ExportImage(result, "ContourFinder");
   return mat;
 }
 

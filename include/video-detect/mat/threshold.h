@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <utility>
+#include <vector>
 
 #include "video-detect/mat/mat_2d.h"
 
@@ -18,8 +19,7 @@ class Threshold {
  public:
   explicit Threshold(MatType lower_bound, MatType upper_bound, MatType minimum,
                      MatType maximum)
-      : range_{std::make_pair<MatType, MatType>(std::move(lower_bound),
-                                                std::move(upper_bound))},
+      : range_{std::make_pair(std::move(lower_bound), std::move(upper_bound))},
         minimum_(minimum),
         maximum_(maximum) {}
 

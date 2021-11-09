@@ -6,10 +6,12 @@
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_OPENCV2_DETECT_H_
 
 #include <iostream>
+#include <string>
+#include <vector>
+
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include <string>
 
 namespace video_detect {
 namespace opencv2 {
