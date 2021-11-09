@@ -71,8 +71,8 @@ static cv::Mat FindContoursMatrix(const cv::Mat &mat) {
 
   cv::Mat mat_contour(mat.rows, mat.cols, CV_8UC1, cv::Scalar(0));
   drawContours(mat_contour, contours, -1, cv::Scalar(255), 1);
-  SaveImage("findContours", "/workspaces/video-detect/build/test",
-            mat_contour);
+  //SaveImage("findContours", "/workspaces/video-detect/build/test",
+  //          mat_contour);
   return mat_contour;
 }
 

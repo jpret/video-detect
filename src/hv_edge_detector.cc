@@ -11,6 +11,7 @@
 #include "video-detect/mat/threshold.h"
 #include "video-detect/opencv2/detect.h"
 #include "video-detect/opencv2/export_u8_mat_2d.h"
+#include "video-detect/opencv2/mat_2d_adapter.h"
 #include "video-detect/opencv2/util.h"
 
 namespace video_detect {
@@ -36,7 +37,7 @@ void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& mat) {
   result = ApplyContourFinder(result);
 
   // 5. Approximate contours with linear features
-  //
+  result = ApplyLinearFeatureFinder(result);
 
   // 6. Find rectangles with "frame-like" attributes
 }
@@ -58,13 +59,13 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyGaussianFilter(ConstMatU8& mat) {
   mat::Filter<uint8_t, float> filter(mat::kKernelGaussian3x3);
 
   // Export input image
-  ExportImage(mat, "GaussianFilterInput");
+  //ExportImage(mat, "GaussianFilterInput");
 
   // Filter image
   MatU8 result = filter.Apply(mat);
 
   // Export output image
-  ExportImage(result, "GaussianFilterOutput");
+  //ExportImage(result, "GaussianFilterOutput");
 
   // Return result
   return result;
@@ -75,13 +76,13 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyThresholdFilter(ConstMatU8& mat) {
   mat::Threshold<uint8_t> threshold(100, 200, 0, 255);
 
   // Export input image
-  ExportImage(mat, "ThresholdFilterInput");
+  //ExportImage(mat, "ThresholdFilterInput");
 
   // Filter image
   MatU8 result = threshold.Apply(mat);
 
   // Export output image
-  ExportImage(result, "ThresholdFilterOutput");
+  //ExportImage(result, "ThresholdFilterOutput");
 
   // Return result
   return result;
@@ -94,7 +95,7 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
   mat::Filter<uint8_t, int8_t> y_filter(mat::kSobelY3x3);
 
   // Export input image
-  ExportImage(mat, "EdgeDetectionFilterInput");
+  //ExportImage(mat, "EdgeDetectionFilterInput");
 
   // Filter images
   auto x_mat = x_filter.Apply(mat).CastTo<float>();
@@ -106,9 +107,9 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
 
   // Export output images - checking with int to prevent casting
   if (export_images_) {
-    ExportImage(x_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_X");
-    ExportImage(y_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_Y");
-    ExportImage(result_mag, "EdgeDetectionFilterOutputMag");
+    //ExportImage(x_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_X");
+    //ExportImage(y_mat.CastTo<uint8_t>(), "EdgeDetectionFilterOutput_Y");
+    //ExportImage(result_mag, "EdgeDetectionFilterOutputMag");
   }
 
   // Calculate the magnitude image
@@ -116,31 +117,65 @@ HVEdgeDetector::MatU8 HVEdgeDetector::ApplyEdgeDetectionFilter(
 }
 
 HVEdgeDetector::MatU8 HVEdgeDetector::ApplyContourFinder(ConstMatU8& mat) {
-  // MatU8 result(mat.GetRowCount(), mat.GetColCount());
-
-  opencv2::FindContoursMatrix(opencv2::ConvertMat2DToCvMat(mat));
-
-  // const int win_w = 3;
-  // const int win_h = 10;
-  // int sum_prev = 0;
-
-  // for (int row = 0; row < mat.GetRowCount(); row += win_h) {
-  //   for (int col = 0; col < mat.GetColCount(); col += win_w) {
-  //     int sum_next = 0;
-  //     for (int scan_x = 0; scan_x < win_w; scan_x++) {
-  //       for (int scan_y = 0; scan_y < win_h; scan_y++) {
-  //         sum_next += mat.GetValue(scan_x + col, scan_y + row);
-  //       }
-  //     }
-  //     if (sum_next > sum_prev + 10 || sum_next < sum_prev - 10) {
-  //       result.SetValue(row, col, 255);
-  //       sum_prev = sum_next;
-  //     }
-  //   }
-  // }
-
-  // ExportImage(result, "ContourFinder");
+  // Use open cv to calculate the contours
+  return opencv2::Mat2DAdapter<uint8_t>(
+      opencv2::FindContoursMatrix(opencv2::ConvertMat2DToCvMat(mat)));
   return mat;
+}
+
+HVEdgeDetector::MatU8 HVEdgeDetector::ApplyLinearFeatureFinder(
+    ConstMatU8& mat) {
+
+  static const int kLineLengthH = 20;
+  static const int kLineLengthV = 15;
+
+  int line_counter = 0;
+  MatU8 result_h(mat.GetRowCount(), mat.GetColCount());
+  MatU8 result_v(mat.GetRowCount(), mat.GetColCount());
+
+  // Find linear features -> HORIZONTAL
+  for (int row = 0; row < mat.GetRowCount(); row++) {
+    for (int col = 0; col < mat.GetColCount(); col++) {
+      // Go through each column to check if we have a linear line
+      if (mat.GetValue(row, col) == 255) {
+        ++line_counter;
+      } else if (line_counter >= kLineLengthH) {
+        // This means we had a horizontal line -> color it in!
+        for (int x = col - line_counter; x <= col; x++) {
+          result_h.SetValue(row, x, 255);
+        }
+        line_counter = 0;
+      } else {
+        // This means we did not detect a horizontal line
+        line_counter = 0;
+      }
+    }
+    line_counter = 0;
+  }
+
+  // Find linear features -> VERTICAL
+  for (int col = 0; col < mat.GetColCount(); col++) {
+  for (int row = 0; row < mat.GetRowCount(); row++) {
+      // Go through each column to check if we have a linear line
+      if (mat.GetValue(row, col) == 255) {
+        ++line_counter;
+      } else if (line_counter >= kLineLengthV) {
+        // This means we had a vertical line -> color it in!
+        for (int y = row - line_counter; y <= row; y++) {
+          result_v.SetValue(y, col, 255);
+        }
+        line_counter = 0;
+      } else {
+        // This means we did not detect a vertical line
+        line_counter = 0;
+      }
+    }
+    line_counter = 0;
+  }
+
+  auto result = result_v + result_h;
+  ExportImage(result, "LinearFeatureFinderOutput");
+  return result;
 }
 
 }  // namespace video_detect

@@ -39,6 +39,7 @@ class HVEdgeDetector
   MatU8 ApplyEdgeDetectionFilter(
       ConstMatU8 &mat);                       // NOLINT(runtime/references)
   MatU8 ApplyContourFinder(ConstMatU8 &mat);  // NOLINT(runtime/references)
+  MatU8 ApplyLinearFeatureFinder(ConstMatU8 &mat);  // NOLINT(runtime/references)
 };
 
 }  // namespace video_detect
