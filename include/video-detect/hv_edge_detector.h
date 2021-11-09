@@ -7,10 +7,10 @@
 
 #include <map>
 #include <string>
+#include <utility>
 
 #include "video-detect/mat/mat_2d.h"
 #include "video-detect/util/object_receiver.h"
-
 
 namespace video_detect {
 
@@ -25,11 +25,14 @@ class HVEdgeDetector
 
   void Accept(const mat::Mat2D<uint8_t> &mat) override;
 
+  std::pair<int, int> GetBestEstimateFrameSize();
+
  private:
   const bool export_images_;
   const std::string export_path_;
   std::map<int, int> rows_;
   std::map<int, int> cols_;
+  std::pair<int, int> frame_size_;
 
   typedef const mat::Mat2D<uint8_t> ConstMatU8;
   typedef mat::Mat2D<uint8_t> MatU8;
@@ -47,6 +50,8 @@ class HVEdgeDetector
       ConstMatU8 &mat);  // NOLINT(runtime/references)
 
   void UpdateFrameSizes(std::map<int, int> corners, int width, int height);
+
+  void UpdateBestEstimateFrameSizes(int rows, int cols, int boundary);
 };
 
 }  // namespace video_detect

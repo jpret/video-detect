@@ -44,21 +44,8 @@ void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& mat) {
   // image
   UpdateFrameSizes(corners, result.GetRowCount(), result.GetColCount());
 
-  // 8. Count the unique frame sizes
-
-  // 8. Choose the frame size
-  // Print estimated sizes
-  std::cout << "Rows: ";
-  for (auto& row : rows_) {
-    std::cout << row.first << "[" << row.second << "] " << std::flush;
-  }
-  std::cout << std::endl;
-
-  std::cout << "Cols: ";
-  for (auto& col : cols_) {
-    std::cout << col.first << "[" << col.second << "] " << std::flush;
-  }
-  std::cout << std::endl;
+  // 8. Print the best estimate frame size
+  UpdateBestEstimateFrameSizes(result.GetRowCount(), result.GetColCount(), 5);
 }
 
 void HVEdgeDetector::ExportImage(ConstMatU8& mat,
@@ -258,7 +245,7 @@ void HVEdgeDetector::UpdateFrameSizes(std::map<int, int> corners, int rows,
         auto it = rows_.find(static_cast<int>(result_row));
         if (it != rows_.end()) {
           it->second += static_cast<int>(result_row);
-        } else {
+        } else if (static_cast<int>(result_row) != rows) {
           rows_[static_cast<int>(result_row)] = 1;
         }
       }
@@ -271,12 +258,41 @@ void HVEdgeDetector::UpdateFrameSizes(std::map<int, int> corners, int rows,
         auto it = cols_.find(static_cast<int>(result_col));
         if (it != cols_.end()) {
           it->second += static_cast<int>(result_col);
-        } else {
+        } else if (static_cast<int>(result_col) != cols) {
           cols_[static_cast<int>(result_col)] = 1;
         }
       }
     }
   }
+}
+
+void HVEdgeDetector::UpdateBestEstimateFrameSizes(int rows, int cols,
+                                                  int boundary) {
+  auto max_row = std::max_element(rows_.begin(), rows_.end());
+  auto max_col = std::max_element(cols_.begin(), cols_.end());
+
+  if (export_images_) {
+    // Print the highest counted corners row_count & col_count
+    std::cout << "Rows: " << max_row->first << "[" << max_row->second << "] "
+              << std::endl;
+    std::cout << "Cols: " << max_col->first << "[" << max_col->second << "] "
+              << std::endl;
+  }
+
+  // Boundary
+  int row_size = max_row->second >= boundary
+                     ? (1.f * rows) / (1.f * max_row->first)
+                     : rows;
+  int col_size = max_col->second >= boundary
+                     ? (1.f * cols) / (1.f * max_col->first)
+                     : cols;
+
+  // Return best case row + col if it is above the boundary
+  frame_size_ = std::make_pair(row_size, col_size);
+}
+
+std::pair<int, int> HVEdgeDetector::GetBestEstimateFrameSize() {
+  return frame_size_;
 }
 
 }  // namespace video_detect
