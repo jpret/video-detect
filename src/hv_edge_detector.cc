@@ -6,9 +6,12 @@
 
 #include <utility>
 
+#include "video-detect/mat/Threshold.h"
 #include "video-detect/mat/filter.h"
 #include "video-detect/mat/kernel_defs.h"
+#include "video-detect/opencv2/detect.h"
 #include "video-detect/opencv2/export_u8_mat_2d.h"
+#include "video-detect/opencv2/util.h"
 #include "video-detect/util/chainable_object_receiver_split.h"
 #include "video-detect/vline.h"
 
@@ -24,7 +27,7 @@ HVEdgeDetector::HVEdgeDetector(bool export_images,
   AddGaussianFilterToChain(*chain_start);
 
   // 2. Add a threshold filter to remove out of bounds values
-  //
+  AddThresholdFilterToChain(*chain_start);
 
   // 3. Add Sobel edge detection filter
   AddEdgeDetectionFilterToChain(*chain_start);
@@ -42,6 +45,9 @@ HVEdgeDetector::HVEdgeDetector(bool export_images,
 }
 
 void HVEdgeDetector::Accept(const mat::Mat2D<uint8_t>& img) {
+  // Temporary: use the OpenCV way
+  opencv2::Detect(export_path_, opencv2::ConvertMat2DToCvMat(img));
+
   if (!handler_chain.empty()) {
     // During the time building the chain, the chain start
     // was added last
@@ -75,6 +81,20 @@ void HVEdgeDetector::AddGaussianFilterToChain(Chain& c) {
   AddExportImage(c, "GaussianFilterInput");
   c.AppendToChain(*filter);
   AddExportImage(c, "GaussianFilterOutput");
+
+  // Add to chain handler owner
+  handler_chain.push_back(std::move(filter));
+}
+
+void HVEdgeDetector::AddThresholdFilterToChain(Chain& c) {
+  // Create filter
+  auto filter = std::make_unique<mat::Threshold<uint8_t>>(100, 200);
+
+  // Add filter to chain + exporters (export_image check done by
+  // AddExportImage())
+  AddExportImage(c, "ThresholdFilterInput");
+  c.AppendToChain(*filter);
+  AddExportImage(c, "ThresholdFilterOutput");
 
   // Add to chain handler owner
   handler_chain.push_back(std::move(filter));

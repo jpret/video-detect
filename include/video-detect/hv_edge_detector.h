@@ -37,6 +37,7 @@ class HVEdgeDetector
   void AddExportImage(
       Chain &c, const std::string &name_base);   // NOLINT(runtime/references)
   void AddGaussianFilterToChain(Chain &c);       // NOLINT(runtime/references)
+  void AddThresholdFilterToChain(Chain &c);       // NOLINT(runtime/references)
   void AddEdgeDetectionFilterToChain(Chain &c);  // NOLINT(runtime/references)
 };
 
