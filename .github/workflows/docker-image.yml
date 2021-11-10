@@ -35,5 +35,5 @@ jobs:
       uses: EnricoMi/publish-unit-test-result-action@v1.23
       if: always()
       with:
-        files: Testing/**/*.xml
+        files: /cppeng/video-detect/build/Testing/**/*.xml
 

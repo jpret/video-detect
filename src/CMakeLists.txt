@@ -26,6 +26,7 @@ set(include_directories
 
 # Set the link libraries
 set(link_libraries 
+        -lpthread
         ${AVCODEC_LIBRARY} 
         ${AVFORMAT_LIBRARY} 
         -lavutil

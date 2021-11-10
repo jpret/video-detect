@@ -36,5 +36,5 @@ RUN cmake --build build
 RUN cmake --build build -t test
 RUN cmake --build build -t install
 
-# Run
-CMD video-detect
+# Entrypoint
+ENTRYPOINT ["video-detect"]
