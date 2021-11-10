@@ -85,11 +85,11 @@ This project uses a github workflow for building and deploying the docker image 
 # Example
 
 **Original**
-![Original](doc/original.gif)   
+![Original](doc/Original.gif)   
 
 
 **Grayscale**
-![Grayscale](doc/grayscale.gif)  
+![Grayscale](doc/Grayscale.gif)  
 
 
 **Gaussian filter applied to smooth frames**
