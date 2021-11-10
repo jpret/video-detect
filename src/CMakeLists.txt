@@ -13,6 +13,7 @@ find_library(SWSCALE_LIBRARY swscale REQUIRED)
 
 # Find package(s)
 find_package( OpenCV REQUIRED )
+find_package(Threads REQUIRED)
 
 # List sources
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "*.cc")
@@ -26,21 +27,15 @@ set(include_directories
 
 # Set the link libraries
 set(link_libraries 
-        -lpthread
         ${AVCODEC_LIBRARY} 
         ${AVFORMAT_LIBRARY} 
         -lavutil
         ${SWSCALE_LIBRARY}
-        ${OpenCV_LIBS})
+        ${OpenCV_LIBS}
+        -lpthread)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${sources})
-
-# Add Threads
-find_package(Threads REQUIRED)
-if(THREADS_HAVE_PTHREAD_ARG)
-  target_compile_options(${PROJECT_NAME} PUBLIC "-pthread")
-endif()
 
 # Add include directories
 target_include_directories(${PROJECT_NAME} 
@@ -50,15 +45,7 @@ target_include_directories(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME} PRIVATE VIDEO_DETECT_VERSION=${PROJECT_VERSION})
 
 # Link libraries
-if(CMAKE_THREAD_LIBS_INIT)
-    target_link_libraries(${PROJECT_NAME}  
-                          PUBLIC "${CMAKE_THREAD_LIBS_INIT}"
-                          PRIVATE ${link_libraries})
-else()
-    target_link_libraries(${PROJECT_NAME}
-                          PRIVATE ${link_libraries})
-endif()
-
+target_link_libraries(${PROJECT_NAME} PRIVATE ${link_libraries})
 
 # Set output directories
 set_target_properties( ${PROJECT_NAME}
@@ -75,11 +62,6 @@ if (BUILD_TESTING)
     # Create a library
     add_library(${PROJECT_NAME}_lib SHARED ${sources})
 
-    # Add threads
-    if(THREADS_HAVE_PTHREAD_ARG)
-        target_compile_options(${PROJECT_NAME}_lib PUBLIC "-pthread")
-    endif()
-
     # Add include directories
     target_include_directories(${PROJECT_NAME}_lib 
                             PRIVATE ${include_directories}
@@ -89,14 +71,8 @@ if (BUILD_TESTING)
     target_compile_definitions(${PROJECT_NAME}_lib PRIVATE VIDEO_DETECT_VERSION=${PROJECT_VERSION})
 
     # Link libraries
-    if(CMAKE_THREAD_LIBS_INIT)
-    target_link_libraries(${PROJECT_NAME}_lib  
-                        PUBLIC "${CMAKE_THREAD_LIBS_INIT}"
-                        PRIVATE ${link_libraries})
-    else()
     target_link_libraries(${PROJECT_NAME}_lib
                         PRIVATE ${link_libraries})
-    endif()
 
     # Set output directories
     set_target_properties( ${PROJECT_NAME}_lib

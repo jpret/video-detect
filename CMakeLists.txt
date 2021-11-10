@@ -7,7 +7,6 @@ project(video-detect VERSION 1.0)
 # Specify the c++ standard version
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-SET(CMAKE_EXE_LINKER_FLAGS "-pthread")
 
 # Set target compile options
 add_compile_options("-Wno-deprecated-declarations")

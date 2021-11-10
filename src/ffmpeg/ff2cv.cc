@@ -145,7 +145,7 @@ int ff2cv(const char *video_file, int modulo_frame_count,
       //////////////////////////////////////////////////////////////////
       // START - Custom code
 
-      // Grab only modulo_frame_count'th frame
+      // Grab only modulo_frame_count'th frame (customizable later)
       if (nb_frames % modulo_frame_count == 0) {
         // Send the image to the receiver
         receiver->Accept(image);

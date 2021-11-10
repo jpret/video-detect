@@ -40,8 +40,11 @@ int main(int argc, const char *argv[]) {
 
   // Read the video and analyse the frames, send the frames to the
   // matrix bridge
-  video_detect::ffmpeg::ff2cv(options.GetFileInput().c_str(),
-                              options.GetFrameModulo(), &mat_bridge);
+  if (video_detect::ffmpeg::ff2cv(options.GetFileInput().c_str(),
+                                  options.GetFrameModulo(), &mat_bridge) != 0) {
+    std::cout << "Error in loading video!" << std::endl;
+    exit(EXIT_FAILURE);
+  }
 
   // Wait for worker to finish its work
   while (worker.IsBusy()) {

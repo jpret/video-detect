@@ -137,9 +137,14 @@ FrameSizeEstimator::MatU8 FrameSizeEstimator::ApplyEdgeDetectionFilter(
 FrameSizeEstimator::MatU8 FrameSizeEstimator::ApplyContourFinder(
     ConstMatU8& mat) {
   // Use open cv to calculate the contours
-  return opencv2::Mat2DAdapter<uint8_t>(
+  auto result = opencv2::Mat2DAdapter<uint8_t>(
       opencv2::FindContoursMatrix(opencv2::ConvertMat2DToCvMat(mat)));
-  return mat;
+
+  // Export images
+  ExportImage(result, "ContourFinderOutput");
+
+  // Return
+  return result;
 }
 
 FrameSizeEstimator::MatU8 FrameSizeEstimator::ApplyLinearFeatureFinder(
@@ -420,7 +425,7 @@ void FrameSizeEstimator::UpdateBestEstimateFrameSizes(int rows, int cols,
   }
 
   // Return best case row + col if it is above the boundary
-  frame_size_ = std::make_pair(row_size, col_size);
+  frame_size_ = std::make_pair(col_size, row_size);
 }
 
 std::pair<int, int> FrameSizeEstimator::GetBestEstimateFrameSize() {
