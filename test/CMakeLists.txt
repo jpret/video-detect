@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.12.0)
 # Find packages
 find_package(GTest CONFIG REQUIRED)
 find_package( OpenCV REQUIRED )
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 
 # List sources
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS "*.cc")
@@ -29,10 +31,12 @@ target_link_libraries(${PROJECT_NAME}_test PRIVATE
                     GTest::gmock_main 
                     GTest::gtest_main
                     ${OpenCV_LIBS}
-                    ${PROJECT_NAME}_lib)
+                    ${PROJECT_NAME}_lib
+                    Threads::Threads)
 
 # add test to enable use of make test for unit tests
-add_test(${PROJECT_NAME}_test ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_test)
+add_test(NAME ${PROJECT_NAME}_test 
+         COMMAND ${CMAKE_BINARY_DIR}/bin/${PROJECT_NAME}_test --gtest_output=xml:${CMAKE_BINARY_DIR}/Testing/gtest/results.xml)
 
 # Only check styles if option is set
 if (CHECK_STYLES)

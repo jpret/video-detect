@@ -32,6 +32,15 @@ Worker::~Worker() {
 
 bool Worker::IsBusy() { return busy_; }
 
+void Worker::CancelWork() {
+  cancel_work_ = true;
+
+  // Wait until jobs completed
+  while (IsBusy()) {
+    // Wait until thread is joinable
+  }
+}
+
 void Worker::DoWork() {
   // Only start the working thread when it is not yet busy
   if (!busy_) {
@@ -46,7 +55,7 @@ void Worker::DoWork() {
     // Start the thread and go do the work
     thread_ = std::make_unique<std::thread>([this] {
       // Do all the work until empty
-      while (!jobs_.empty()) {
+      while (!jobs_.empty() && !cancel_work_) {
         {
           // Obtain the queue access
           std::lock_guard<std::mutex> lock_guard(queue_access_);

@@ -6,8 +6,10 @@
 #define VIDEO_DETECT_INCLUDE_VIDEO_DETECT_OPENCV2_UTIL_H_
 
 #include <utility>
+#include <vector>
 
 #include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include "video-detect/mat/mat_2d.h"
 
@@ -26,6 +28,20 @@ static cv::Mat ConvertMat2DToCvMat(const mat::Mat2D<uint8_t> &mat) {
   }
 
   return cv_mat;
+}
+
+static cv::Mat FindContoursMatrix(const cv::Mat &mat) {
+  std::vector<std::vector<cv::Point>> contours;
+  std::vector<cv::Vec4i> hierarchy;
+
+  cv::findContours(mat, contours, hierarchy, cv::RETR_TREE,
+                   cv::CHAIN_APPROX_NONE);
+
+  cv::Mat mat_contour(mat.rows, mat.cols, CV_8UC1, cv::Scalar(0));
+
+  drawContours(mat_contour, contours, -1, cv::Scalar(255), 1);
+
+  return mat_contour;
 }
 
 }  // namespace opencv2

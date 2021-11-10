@@ -22,6 +22,8 @@ void MatBridge::Accept(const cv::Mat &cv_mat) {
 
   // Perform the bridging work by the worker to not hold up the calling chain
   worker_.Accept([this, img_gray = std::move(img_gray)]() {
+    // Pass on the matrix to the receiver which expects a grayscale image
+    // Thus, a single channel unsigned char 2D matrix
     receiver_.Accept(opencv2::Mat2DAdapter<uint8_t>(img_gray));
   });
 }

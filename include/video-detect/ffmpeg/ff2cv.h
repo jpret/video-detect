@@ -25,9 +25,9 @@ namespace ffmpeg {
  * @param video_path            is the full path to the video file
  * @param modulo_frame_count    the frame count is modulo'd by this to prevent
  *                              limit the amount of frames to process by the
- * receiver
+ *                              receiver
  * @param receiver              each non-limited frame is passed on to the
- * receiver
+ *                              receiver
  */
 int ff2cv(const char *video_file, int modulo_frame_count,
           video_detect::util::ObjectReceiver<const cv::Mat&> *receiver);

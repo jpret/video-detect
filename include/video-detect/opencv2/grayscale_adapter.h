@@ -10,6 +10,11 @@
 namespace video_detect {
 namespace opencv2 {
 
+/**
+ * @brief The GrayscaleAdapter adapts a 3-Channel (RGB) matrix
+ * to a single channel grayscale cv::Mat
+ *
+ */
 class GrayscaleAdapter : public cv::Mat {
  public:
   explicit GrayscaleAdapter(const cv::Mat &mat);

@@ -12,11 +12,12 @@
 #include "video-detect/mat/mat_2d.h"
 #include "video-detect/mat/vector_2d.h"
 
+
 namespace video_detect {
 namespace opencv2 {
 
 /**
- * @brief The Mat2DAdapter changes a cv::Mat to a Mat2D class
+ * @brief The Mat2DAdapter adapts a cv::Mat to a Mat2D class
  *
  * @tparam T the type of 2D Matrix to use
  */

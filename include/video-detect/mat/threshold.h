@@ -25,6 +25,8 @@ class Threshold {
 
   Mat2D<MatType> Apply(const Mat2D<MatType> &mat) {
     Mat2D<MatType> result(mat.GetRowCount(), mat.GetColCount());
+
+    // Navigate through the matrix
     for (int row = 0; row < mat.GetRowCount(); row++) {
       for (int col = 0; col < mat.GetColCount(); col++) {
         MatType value = mat.GetValue(row, col);
@@ -37,8 +39,10 @@ class Threshold {
           // Change the value if it is out of bounds
           if (value < it->first) {
             new_value = minimum_;
+
           } else if (value > it->second) {
             new_value = maximum_;
+
           } else {
             // Set the new_value, it is in bounds and stop the search
             new_value = mat.GetValue(row, col);

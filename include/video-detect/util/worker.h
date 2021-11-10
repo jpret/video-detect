@@ -38,11 +38,14 @@ class Worker : public ObjectReceiver<std::function<void()>> {
 
   bool IsBusy();
 
+  void CancelWork();
+
  private:
   std::queue<std::function<void()>> jobs_;  // queue to hold the jobs
   std::unique_ptr<std::thread> thread_{nullptr};
   std::mutex queue_access_;
   std::atomic<bool> busy_{false};
+  std::atomic<bool> cancel_work_{false};
 
   /**
    * The DoWork method is where all the work in the queue gets executed by the

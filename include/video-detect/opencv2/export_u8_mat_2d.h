@@ -15,6 +15,12 @@ namespace opencv2 {
 
 class ExportU8Mat2D : public util::ObjectReceiver<const mat::Mat2D<uint8_t> &> {
  public:
+ /**
+  * @brief Construct a new Export U 8 Mat 2 D object
+  * 
+  * @param name the base name of the image
+  * @param path the output path of the image
+  */
   explicit ExportU8Mat2D(std::string name, std::string path);
 
   void Accept(const mat::Mat2D<uint8_t> &mat) override;

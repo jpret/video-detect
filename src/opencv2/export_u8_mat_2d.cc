@@ -11,7 +11,6 @@
 
 #include "video-detect/opencv2/util.h"
 
-
 namespace video_detect {
 namespace opencv2 {
 

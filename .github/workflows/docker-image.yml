@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ development/main ]
+    branches: [ development/main, main ]
   pull_request:
-    branches: [ main ]
+    branches: [ development/main, main ]
 
 jobs:
 
@@ -30,3 +30,10 @@ jobs:
       
     - name: Docker Logout
       run: docker logout
+
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1.23
+      if: always()
+      with:
+        files: Testing/**/*.xml
+

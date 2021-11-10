@@ -14,12 +14,29 @@
 
 namespace video_detect {
 
+/**
+ * @brief The MatBridge class provides a bridge between the external libraries /
+ * code and the cppengineer/video-detect code.
+ *
+ */
 class MatBridge : public util::ObjectReceiver<const cv::Mat &> {
  public:
+  /**
+   * @brief Construct a new Mat Bridge object
+   *
+   * @param worker a thread worker to schedule incoming work through the bridge
+   * @param receiver the receiver which will receive any information through the
+   * worker
+   */
   explicit MatBridge(util::Worker &worker,  // NOLINT(runtime/references)
                      util::ObjectReceiver<const mat::Mat2D<uint8_t> &>
                          &receiver);  // NOLINT(runtime/references)
 
+  /**
+   * @brief Accept a OpenCV Mat object
+   *
+   * @param cv_mat a 3-Channel (RGB) unsigned char opencv matrix
+   */
   void Accept(const cv::Mat &cv_mat) override;
 
  private:
