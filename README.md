@@ -20,7 +20,7 @@ docker run \   # Initiate the docker container run command
                                             # the latest image from docker hub
        --help # Add video-detect arguments here
 
-# In full it looks like this for analyzing the a sample video in the c:\share folder
+# In full it looks like this for analyzing a sample video in the c:\share folder
 docker run --rm -it -v c:\share:/share -t cppengineer/video-detect:latest --infile /share/sample.mp4 
 ```
 
@@ -56,7 +56,7 @@ The following test framework was used for the unit tests:
 A build from sources is done as follows:
 ```sh
 # Clone the repository
-https://github.com/cppengineer/video-detect.git
+git clone https://github.com/cppengineer/video-detect.git
 
 # Navigate into the source folder
 cd video-detect
@@ -80,7 +80,7 @@ The available cmake **options** are:
 + Build type: `CMAKE_BUILD_TYPE=[Release|Debug]`. Default is **Debug**
 
 # Build Pipeline
-This project uses a github workflow for building and deploying the docker image to docker hub. The latest build status is shown in the tag above.
+This project uses a github workflow for building and deploying the docker image to [docker hub](https://hub.docker.com/r/cppengineer/video-detect). The latest build status is shown in the tag above.
 
 # Example
 
