@@ -140,4 +140,4 @@ Where **106x60** is **6x6** frames in **640x360**.
 
 
 # Contact
-For more information you can contact me through the contact page at [Cpp::Engineer](https://cppengineer.com)
+For more information you can contact me through the contact page at [Cpp::Engineer](https://cppengineer.com/contact)
