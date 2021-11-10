@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ development/main ]
+    branches: [ development/main, main ]
   pull_request:
-    branches: [ main ]
+    branches: [ development/main, main ]
 
 jobs:
 
@@ -14,5 +14,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      run: |
+        echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin
+    
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag cppengineer/video-detect:latest
+    
+    - name: Docker Push
+      run: docker push cppengineer/video-detect:latest
+      
+    - name: Docker Logout
+      run: docker logout
+
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1.23
+      if: always()
+      with:
+        files: /cppeng/video-detect/build/Testing/gtest/results.xml

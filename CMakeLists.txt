@@ -8,9 +8,25 @@ project(video-detect VERSION 1.0)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Add the include directories
-include_directories(include)
+# Set target compile options
+add_compile_options("-Wno-deprecated-declarations")
+
+# Set options
+option(BUILD_TESTING "Build Tests" OFF)
 
 # Add the required sub-directories
 add_subdirectory(src)
-#add_subdirectory(test)
+
+# Only build tests if instructed to do so
+if (BUILD_TESTING) 
+
+    # Enable testing
+    enable_testing()
+
+    # Set options
+    option(CHECK_STYLES "Check styles" ON)
+
+    # Add testing subdirectory
+    add_subdirectory(test)
+
+endif()

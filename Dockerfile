@@ -1,19 +1,40 @@
 FROM gcc:latest
 
 # Install dependencies
-RUN apt update
-RUN apt -y install cmake
+RUN apt-get update
+RUN apt-get -y install cmake
 
-# Clone repository
-WORKDIR /cppeng
-RUN git clone https://github.com/cppengineer/video-detect.git
+# Install FFMPEG dependencies
+RUN apt-get -y install libavcodec-dev
+RUN apt-get -y install libavformat-dev
+RUN apt-get -y install libavutil-dev
+RUN apt-get -y install libswscale-dev
 
-# Create a build directory
-WORKDIR /cppeng/video-detect/build
+# Install OpenCV dependencies
+RUN apt-get -y install libopencv-dev
 
-# Invoke cmake and compile
-RUN cmake ..
-RUN make
+# Install GoogleTest dependencies
+RUN apt-get -y install libgtest-dev
+RUN apt-get -y install libgmock-dev
 
-# Run tests
-CMD /cppeng/video-detect/build/src/video-detect
+# Install code quality dependencies
+RUN apt-get -y install pip
+RUN pip install cpplint
+
+# Install development dependencies
+RUN apt-get -y install clang-format
+RUN apt-get -y install gdb
+
+# Copy all files in repository into image
+WORKDIR /cppeng/video-detect
+COPY . .
+
+# Build project and run tests
+WORKDIR /cppeng/video-detect/
+RUN cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release -S . -B build
+RUN cmake --build build
+RUN cmake --build build -t test
+RUN cmake --build build -t install
+
+# Entrypoint
+ENTRYPOINT ["video-detect"]

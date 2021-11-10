@@ -36,3 +36,6 @@ build
 
 # Docker files
 devcontainer.json
+
+# VSCode files
+.vscode
