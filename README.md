@@ -84,35 +84,43 @@ This project uses a github workflow for building and deploying the docker image 
 
 # Example
 
-**Original**
+**Original**  
+
 ![Original](doc/Original.gif)   
 
 
-**Grayscale**
+**Grayscale**  
+
 ![Grayscale](doc/Grayscale.gif)  
 
 
-**Gaussian filter applied to smooth frames**
+**Gaussian filter applied to smooth frames**  
+
 ![Gaussian Filter](doc/GaussianFilter.gif)  
 
 
-**Threshold filter to remove noise**
+**Threshold filter to remove noise**  
+
 ![Threshold Filter](doc/ThresholdFilter.gif)  
 
 
-**Sobel Edge detection used to identify edges**
+**Sobel Edge detection used to identify edges**  
+
 ![Sobel Edge Detection](doc/SobelEdgeDetection.gif)  
 
 
-**Search for contours**
+**Search for contours**  
+
 ![Contour Finder](doc/ContourFinder.gif)  
 
 
-**Identify linear features**
+**Identify linear features**  
+
 ![Linear Feature Finder](doc/LinearFeatureFinder.gif)  
 
 
-**Find corners**
+**Find corners**  
+
 ![Corner Finder](doc/CornerFinder.gif)  
 
 
